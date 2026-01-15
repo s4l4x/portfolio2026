@@ -3,9 +3,11 @@ import gLoveImage from "../assets/g.love.png";
 import braidHealthImage from "../assets/braidGenerate.png";
 import apolloImage from "../assets/apolloVibes.png";
 import periscopeImage from "../assets/periscopeLive360.webp";
-import dionysianImage from "../assets/dionysianJournals.png";
+import dionysianBG from "../assets/dionysianJournals.png";
+import dionysianFG from "../assets/dionysianJournalsFG.png";
 import ixomoxiImage from "../assets/ixomoxiMissy.png";
 import lucyFiferImage from "../assets/lucyFifer.png";
+import lucyLogoImage from "../assets/lucyLogo.png";
 
 export const projects: Project[] = [
   {
@@ -35,7 +37,8 @@ export const projects: Project[] = [
     description:
       "The Dionysian Journals is an album that explores ecstasy, transformation, and the loss of fixed identity. Inspired by the cult of Dionysus, driven by sensation, emotion, and perception, it merges into a single, luminous state.",
     startDate: "2025-03",
-    image: dionysianImage,
+    image: dionysianBG,
+    foregroundImage: dionysianFG,
   },
   {
     title: "Periscope Live 360",
@@ -55,5 +58,7 @@ export const projects: Project[] = [
     description: "See the world through Lucy's eyes.",
     startDate: "2024-11",
     image: lucyFiferImage,
+    foregroundImage: lucyLogoImage,
+    shader: "colorCycle",
   },
 ];
