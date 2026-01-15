@@ -15,7 +15,11 @@ function formatDate(dateString: string): string {
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {
-  const formattedDate = formatDate(project.date);
+  const startFormatted = formatDate(project.startDate);
+  const endFormatted = project.endDate ? formatDate(project.endDate) : null;
+  const dateDisplay = endFormatted 
+    ? `${startFormatted} – ${endFormatted}` 
+    : startFormatted;
 
   return (
     <article className="project-card">
@@ -23,7 +27,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
         <img src={project.image} alt={project.title} loading="lazy" />
       </div>
       <div className="project-content">
-        <time className="project-date">{formattedDate}</time>
+        <time className="project-date">{dateDisplay}</time>
         <h2 className="project-title">{project.title}</h2>
         <p className="project-description">{project.description}</p>
       </div>

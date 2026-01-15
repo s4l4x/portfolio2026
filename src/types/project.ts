@@ -1,6 +1,7 @@
 export interface Project {
   title: string;
   description: string;
-  date: string;
+  startDate: string;
+  endDate?: string;
   image: string;
 }
