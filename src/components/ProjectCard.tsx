@@ -1,4 +1,5 @@
 import { Project } from '../types/project';
+import { ShaderImage } from './ShaderImage';
 
 interface ProjectCardProps {
   project: Project;
@@ -24,12 +25,21 @@ export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <article className="project-card">
       <div className="project-image">
-        <img
-          src={project.image}
-          alt={project.title}
-          loading="lazy"
-          className="project-image-background"
-        />
+        {project.shader ? (
+          <ShaderImage
+            src={project.image}
+            shaderType={project.shader}
+            alt={project.title}
+            className="project-image-background"
+          />
+        ) : (
+          <img
+            src={project.image}
+            alt={project.title}
+            loading="lazy"
+            className="project-image-background"
+          />
+        )}
         {project.foregroundImage && (
           <img
             src={project.foregroundImage}

@@ -1,3 +1,5 @@
+export type ShaderType = 'colorCycle';
+
 export interface Project {
   title: string;
   description: string;
@@ -5,4 +7,5 @@ export interface Project {
   endDate?: string;
   image: string;
   foregroundImage?: string;
+  shader?: ShaderType;
 }
