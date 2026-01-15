@@ -24,7 +24,20 @@ export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <article className="project-card">
       <div className="project-image">
-        <img src={project.image} alt={project.title} loading="lazy" />
+        <img
+          src={project.image}
+          alt={project.title}
+          loading="lazy"
+          className="project-image-background"
+        />
+        {project.foregroundImage && (
+          <img
+            src={project.foregroundImage}
+            alt=""
+            loading="lazy"
+            className="project-image-foreground"
+          />
+        )}
       </div>
       <div className="project-content">
         <time className="project-date">{dateDisplay}</time>

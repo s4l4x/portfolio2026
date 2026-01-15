@@ -4,4 +4,5 @@ export interface Project {
   startDate: string;
   endDate?: string;
   image: string;
+  foregroundImage?: string;
 }
