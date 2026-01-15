@@ -5,6 +5,7 @@ import apolloImage from "../assets/apolloVibes.png";
 import periscopeImage from "../assets/periscopeLive360.webp";
 import dionysianImage from "../assets/dionysianJournals.png";
 import ixomoxiImage from "../assets/ixomoxiMissy.png";
+import lucyFiferImage from "../assets/lucyFifer.png";
 
 export const projects: Project[] = [
   {
@@ -48,5 +49,11 @@ export const projects: Project[] = [
     description: "Expirments at the edge of music, technology, and play.",
     startDate: "2024-11",
     image: ixomoxiImage,
+  },
+  {
+    title: "Lucy",
+    description: "See the world through Lucy's eyes.",
+    startDate: "2024-11",
+    image: lucyFiferImage,
   },
 ];
