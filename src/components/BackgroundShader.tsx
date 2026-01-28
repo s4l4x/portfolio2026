@@ -171,7 +171,7 @@ function ShaderPlane({ colors, targetColors, scrollY }: ShaderPlaneProps) {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
   const { viewport } = useThree();
 
-  // Physics controls
+  // Physics controls - uses Leva in dev, stubbed with defaults in prod
   const physics = useControls('Physics', {
     collision: folder({
       repulsionStrength: { value: 30, min: 0, max: 50, step: 1 },
