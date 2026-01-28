@@ -459,7 +459,19 @@ export function BackgroundShader({ imageUrls }: BackgroundShaderProps) {
     <div
       style={{
         position: 'fixed',
-        inset: 0,
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        // Extend into safe areas (notch, status bar, etc.)
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingRight: 'env(safe-area-inset-right)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+        paddingLeft: 'env(safe-area-inset-left)',
+        marginTop: 'calc(-1 * env(safe-area-inset-top))',
+        marginRight: 'calc(-1 * env(safe-area-inset-right))',
+        marginBottom: 'calc(-1 * env(safe-area-inset-bottom))',
+        marginLeft: 'calc(-1 * env(safe-area-inset-left))',
         zIndex: -1,
         pointerEvents: 'none',
       }}
