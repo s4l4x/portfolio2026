@@ -1,0 +1,33 @@
+.site-title {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--layer-hud);
+  padding: calc(1rem + env(safe-area-inset-top)) calc(4rem + env(safe-area-inset-left)) 1rem 4rem;
+  pointer-events: none;
+}
+
+.site-title-link {
+  font-family: "Clash Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-fg);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+  pointer-events: auto;
+  transition: opacity 0.2s ease;
+}
+
+.site-title-link:hover {
+  opacity: 0.7;
+}
+
+@media (max-width: 540px) {
+  .site-title {
+    padding: calc(0.75rem + env(safe-area-inset-top)) calc(2rem + env(safe-area-inset-left)) 0.75rem 2rem;
+  }
+
+  .site-title-link {
+    font-size: 1rem;
+  }
+}

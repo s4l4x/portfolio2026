@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { projects } from "./data/projects";
 import { ProjectList } from "./components/ProjectList";
 import { BackgroundShader } from "./components/BackgroundShader";
+import { Title } from "./components/Title";
 import "./App.css";
 
 function App() {
@@ -9,6 +10,7 @@ function App() {
 
   return (
     <>
+      <Title />
       <BackgroundShader imageUrls={imageUrls} />
       <main className="portfolio">
         <header className="portfolio-header">

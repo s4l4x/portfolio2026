@@ -9,6 +9,9 @@
   --color-fg: #000;
   --color-muted: #666;
 
+  /* Z-index layers */
+  --layer-hud: 1000;
+
   color-scheme: light dark;
   color: var(--color-fg);
   background-color: transparent;
