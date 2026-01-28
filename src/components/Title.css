@@ -3,7 +3,7 @@
   top: 0;
   left: 0;
   z-index: var(--layer-hud);
-  padding: calc(1rem + env(safe-area-inset-top)) calc(1rem + env(safe-area-inset-left)) 1rem 1rem;
+  padding: calc(1rem + env(safe-area-inset-top)) calc(4rem + env(safe-area-inset-left)) 1rem 4rem;
   pointer-events: none;
 }
 
@@ -24,7 +24,7 @@
 
 @media (max-width: 540px) {
   .site-title {
-    padding: calc(0.75rem + env(safe-area-inset-top)) calc(0.75rem + env(safe-area-inset-left)) 0.75rem 0.75rem;
+    padding: calc(0.75rem + env(safe-area-inset-top)) calc(2rem + env(safe-area-inset-left)) 0.75rem 2rem;
   }
 
   .site-title-link {
