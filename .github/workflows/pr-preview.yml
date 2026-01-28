@@ -31,7 +31,7 @@ jobs:
         run: npm ci
 
       - name: Build with PR-specific base path
-        run: BASE_PATH=/pr-${{ github.event.pull_request.number }}/ npm run build
+        run: BASE_PATH=/${{ github.event.repository.name }}/pr-${{ github.event.pull_request.number }}/ npm run build
 
       - name: Checkout gh-pages branch
         uses: actions/checkout@v4
