@@ -29,7 +29,8 @@ function TiledMesh({ src, snap }: TiledMeshProps) {
 
   // Calculate object-fit: cover UV transformation
   const { uvScale, uvOffset } = useMemo(() => {
-    const imageAspect = texture.image.width / texture.image.height;
+    const image = texture.image as { width: number; height: number };
+    const imageAspect = image.width / image.height;
     const containerAspect = viewport.width / viewport.height;
 
     let uvScale = new THREE.Vector2(1, 1);
