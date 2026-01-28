@@ -13,19 +13,20 @@ const TILE_COUNT = GRID_X * GRID_Y;
 interface TiledMeshProps {
   src: string;
   snap: number;
+  hover: boolean;
 }
 
-function TiledMesh({ src, snap }: TiledMeshProps) {
+function TiledMesh({ src, snap, hover }: TiledMeshProps) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  const texture = useTexture(src);
+  const groupRef = useRef<THREE.Group>(null);
+  const texture = useTexture(src, (loadedTexture) => {
+    // Configure texture on load
+    loadedTexture.minFilter = THREE.LinearFilter;
+    loadedTexture.magFilter = THREE.LinearFilter;
+  });
   const { viewport } = useThree();
   const targetSnap = useRef(snap);
-
-  // Configure texture
-  useEffect(() => {
-    texture.minFilter = THREE.LinearFilter;
-    texture.magFilter = THREE.LinearFilter;
-  }, [texture]);
+  const targetScale = useRef(1);
 
   // Calculate object-fit: cover UV transformation
   const { uvScale, uvOffset } = useMemo(() => {
@@ -33,8 +34,8 @@ function TiledMesh({ src, snap }: TiledMeshProps) {
     const imageAspect = image.width / image.height;
     const containerAspect = viewport.width / viewport.height;
 
-    let uvScale = new THREE.Vector2(1, 1);
-    let uvOffset = new THREE.Vector2(0, 0);
+    const uvScale = new THREE.Vector2(1, 1);
+    const uvOffset = new THREE.Vector2(0, 0);
 
     if (containerAspect > imageAspect) {
       // Container is wider - crop top/bottom
@@ -122,6 +123,14 @@ function TiledMesh({ src, snap }: TiledMeshProps) {
     targetSnap.current = snap;
     const currentSnap = material.uniforms.uSnap.value;
     material.uniforms.uSnap.value += (targetSnap.current - currentSnap) * 0.08;
+
+    // Smooth hover scale
+    if (groupRef.current) {
+      targetScale.current = hover ? 0.94 : 1;
+      const currentScale = groupRef.current.scale.x;
+      const newScale = currentScale + (targetScale.current - currentScale) * 0.12;
+      groupRef.current.scale.set(newScale, newScale, 1);
+    }
   });
 
   // Geometry with custom attributes
@@ -142,14 +151,16 @@ function TiledMesh({ src, snap }: TiledMeshProps) {
   }, [uvOffsets, indices]);
 
   return (
-    <instancedMesh ref={meshRef} args={[geometry, undefined, TILE_COUNT]}>
-      <shaderMaterial
-        vertexShader={tiledImageVert}
-        fragmentShader={tiledImageFrag}
-        uniforms={uniforms}
-        transparent
-      />
-    </instancedMesh>
+    <group ref={groupRef}>
+      <instancedMesh ref={meshRef} args={[geometry, undefined, TILE_COUNT]}>
+        <shaderMaterial
+          vertexShader={tiledImageVert}
+          fragmentShader={tiledImageFrag}
+          uniforms={uniforms}
+          transparent
+        />
+      </instancedMesh>
+    </group>
   );
 }
 
@@ -157,9 +168,10 @@ interface TiledImageProps {
   src: string;
   alt: string;
   className?: string;
+  hover?: boolean;
 }
 
-export function TiledImage({ src, alt, className }: TiledImageProps) {
+export function TiledImage({ src, alt, className, hover = false }: TiledImageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [snap, setSnap] = useState(1); // Start snapped, jostle when scrolling out
 
@@ -202,9 +214,9 @@ export function TiledImage({ src, alt, className }: TiledImageProps) {
         orthographic
         camera={{ zoom: 1, position: [0, 0, 5] }}
         gl={{ alpha: true, antialias: true }}
-        style={{ position: 'absolute', inset: 0 }}
+        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
       >
-        <TiledMesh src={src} snap={snap} />
+        <TiledMesh src={src} snap={snap} hover={hover} />
       </Canvas>
     </div>
   );

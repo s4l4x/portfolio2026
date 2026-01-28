@@ -10,11 +10,14 @@ import colorCycleFrag from '../shaders/colorCycle.frag?raw';
 interface ShaderPlaneProps {
   src: string;
   shaderType: ShaderType;
+  hover: boolean;
 }
 
-function ShaderPlane({ src, shaderType }: ShaderPlaneProps) {
+function ShaderPlane({ src, shaderType, hover }: ShaderPlaneProps) {
   const texture = useTexture(src);
   const materialRef = useRef<THREE.ShaderMaterial>(null);
+  const groupRef = useRef<THREE.Group>(null);
+  const targetScale = useRef(1);
   const { viewport } = useThree();
 
   const uniforms = useMemo(
@@ -38,19 +41,29 @@ function ShaderPlane({ src, shaderType }: ShaderPlaneProps) {
     if (materialRef.current) {
       materialRef.current.uniforms.uTime.value += delta;
     }
+
+    // Smooth hover scale
+    if (groupRef.current) {
+      targetScale.current = hover ? 0.94 : 1;
+      const currentScale = groupRef.current.scale.x;
+      const newScale = currentScale + (targetScale.current - currentScale) * 0.12;
+      groupRef.current.scale.set(newScale, newScale, 1);
+    }
   });
 
   return (
-    <mesh scale={[viewport.width, viewport.height, 1]}>
-      <planeGeometry args={[1, 1]} />
-      <shaderMaterial
-        ref={materialRef}
-        vertexShader={shaders.vertex}
-        fragmentShader={shaders.fragment}
-        uniforms={uniforms}
-        transparent
-      />
-    </mesh>
+    <group ref={groupRef}>
+      <mesh scale={[viewport.width, viewport.height, 1]}>
+        <planeGeometry args={[1, 1]} />
+        <shaderMaterial
+          ref={materialRef}
+          vertexShader={shaders.vertex}
+          fragmentShader={shaders.fragment}
+          uniforms={uniforms}
+          transparent
+        />
+      </mesh>
+    </group>
   );
 }
 
@@ -59,9 +72,10 @@ interface ShaderImageProps {
   shaderType: ShaderType;
   alt: string;
   className?: string;
+  hover?: boolean;
 }
 
-export function ShaderImage({ src, shaderType, alt, className }: ShaderImageProps) {
+export function ShaderImage({ src, shaderType, alt, className, hover = false }: ShaderImageProps) {
   return (
     <Canvas
       className={className}
@@ -72,7 +86,7 @@ export function ShaderImage({ src, shaderType, alt, className }: ShaderImageProp
       aria-label={alt}
     >
       <Suspense fallback={null}>
-        <ShaderPlane src={src} shaderType={shaderType} />
+        <ShaderPlane src={src} shaderType={shaderType} hover={hover} />
       </Suspense>
     </Canvas>
   );
