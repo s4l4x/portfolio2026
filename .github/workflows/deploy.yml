@@ -1,0 +1,51 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Copy build to gh-pages root (preserving PR previews)
+        run: |
+          # Remove old main site files but keep pr-* directories
+          find gh-pages -maxdepth 1 -type f -delete
+          find gh-pages -maxdepth 1 -type d ! -name 'gh-pages' ! -name 'pr-*' ! -name '.git' -exec rm -rf {} + 2>/dev/null || true
+          # Copy new build
+          cp -R dist/* gh-pages/
+
+      - name: Commit & push
+        run: |
+          cd gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Deploy main site" || echo "No changes to commit"
+          git push
