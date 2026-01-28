@@ -1,7 +1,7 @@
 :root {
-  /* Helvetica Neue or fallback to system sans */
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  line-height: 1.4;
+  /* Epilogue for body copy */
+  font-family: "Epilogue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.5;
   font-weight: 400;
 
   /* Monochrome palette */
@@ -30,6 +30,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
+  font-family: "Clash Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
   text-wrap: balance;
 }
 
