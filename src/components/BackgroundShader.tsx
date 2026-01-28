@@ -461,8 +461,11 @@ export function BackgroundShader({ imageUrls }: BackgroundShaderProps) {
         position: 'fixed',
         top: 0,
         left: 0,
+        right: 0,
+        bottom: 0,
         width: '100vw',
         height: '100vh',
+        minHeight: '100dvh',
         zIndex: -1,
         pointerEvents: 'none',
       }}
@@ -471,6 +474,7 @@ export function BackgroundShader({ imageUrls }: BackgroundShaderProps) {
         orthographic
         camera={{ zoom: 1, position: [0, 0, 1] }}
         gl={{ alpha: false, antialias: false }}
+        style={{ width: '100%', height: '100%' }}
       >
         <ShaderPlane colors={initialColors} targetColors={targetColors} scrollY={scrollY} />
       </Canvas>

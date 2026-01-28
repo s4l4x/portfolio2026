@@ -29,14 +29,19 @@
 html {
   /* Allow background to extend under browser chrome */
   min-height: 100vh;
+  min-height: 100dvh;
+  height: 100%;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  min-height: 100dvh;
+  height: 100%;
   /* Ensure body is transparent so background shows through */
   background: transparent;
+  overflow-x: hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {
