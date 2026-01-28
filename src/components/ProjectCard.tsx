@@ -1,5 +1,6 @@
 import { Project } from '../types/project';
 import { TiledImage } from "./TiledImage";
+import { ShaderImage } from "./ShaderImage";
 
 interface ProjectCardProps {
   project: Project;
@@ -25,11 +26,20 @@ export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <article className="project-card">
       <div className="project-image">
-        <TiledImage
-          src={project.image}
-          alt={project.title}
-          className="project-image-background"
-        />
+        {project.shader ? (
+          <ShaderImage
+            src={project.image}
+            shaderType={project.shader}
+            alt={project.title}
+            className="project-image-background"
+          />
+        ) : (
+          <TiledImage
+            src={project.image}
+            alt={project.title}
+            className="project-image-background"
+          />
+        )}
         {project.foregroundImage && (
           <img
             src={project.foregroundImage}
