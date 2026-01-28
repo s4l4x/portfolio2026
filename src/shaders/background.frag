@@ -5,6 +5,20 @@ uniform float uTime;
 uniform float uScroll;
 uniform vec2 uResolution;
 
+// Physics-driven shape positions
+uniform vec3 uShapePos0;
+uniform vec3 uShapePos1;
+uniform vec3 uShapePos2;
+uniform vec3 uShapePos3;
+uniform vec3 uShapePos4;
+
+// Physics-driven shape rotations (quaternions converted to euler angles)
+uniform vec3 uShapeRot0;
+uniform vec3 uShapeRot1;
+uniform vec3 uShapeRot2;
+uniform vec3 uShapeRot3;
+uniform vec3 uShapeRot4;
+
 varying vec2 vUv;
 
 // 3D Signed Distance Functions
@@ -64,38 +78,30 @@ struct SceneResult {
 
 SceneResult scene(vec3 p) {
   float t = uTime;
-  float s = uScroll;
 
-  // Drift offsets for each shape
-  vec3 drift1 = vec3(sin(t * 0.15) * 0.3, cos(t * 0.12) * 0.2, sin(t * 0.1) * 0.1);
-  vec3 drift2 = vec3(sin(t * 0.18 + 1.0) * 0.4, cos(t * 0.14 + 2.0) * 0.3, cos(t * 0.13) * 0.15);
-  vec3 drift3 = vec3(sin(t * 0.22 + 2.0) * 0.35, cos(t * 0.19 + 1.0) * 0.25, sin(t * 0.11 + 1.0) * 0.12);
-  vec3 drift4 = vec3(sin(t * 0.2 + 3.0) * 0.45, cos(t * 0.16 + 3.0) * 0.35, cos(t * 0.09 + 2.0) * 0.18);
-
-  // Large sphere - far layer (slow parallax)
-  vec3 p1 = p - vec3(3.0, -2.0 + s * 1.5, -8.0) - drift1;
-  p1 = rotateY(t * 0.1) * p1;
+  // Large sphere - position from physics
+  vec3 p1 = p - uShapePos0;
+  p1 = rotateY(uShapeRot0.y) * rotateX(uShapeRot0.x) * rotateZ(uShapeRot0.z) * p1;
   float sphere1 = sdSphere(p1, 2.5);
 
-  // Cube - mid layer
-  vec3 p2 = p - vec3(-2.5, 1.5 + s * 2.5, -6.0) - drift2;
-  p2 = rotateY(t * 0.15) * rotateX(t * 0.12) * p2;
+  // Cube - position from physics
+  vec3 p2 = p - uShapePos1;
+  p2 = rotateY(uShapeRot1.y) * rotateX(uShapeRot1.x) * rotateZ(uShapeRot1.z) * p2;
   float cube = sdBox(p2, vec3(1.2));
 
-  // Cone - near layer
-  vec3 p3 = p - vec3(1.5, 3.0 + s * 4.0, -5.0) - drift3;
+  // Cone - position from physics
+  vec3 p3 = p - uShapePos2;
   p3 = rotateX(3.14159) * p3; // Flip cone to point down
-  p3 = rotateY(t * 0.2) * p3;
+  p3 = rotateY(uShapeRot2.y) * rotateX(uShapeRot2.x) * rotateZ(uShapeRot2.z) * p3;
   float cone = sdCone(p3, vec2(0.5, 0.866), 1.8);
 
-  // Small sphere - accent
-  vec3 p4 = p - vec3(-3.5, -1.0 + s * 3.5, -4.5) - drift4;
+  // Small sphere - position from physics
+  vec3 p4 = p - uShapePos3;
   float sphere2 = sdSphere(p4, 0.9);
 
-  // Octahedron - extra geometric interest
-  vec3 p5 = p - vec3(0.0, 0.5 + s * 2.0, -7.0);
-  p5 += vec3(sin(t * 0.17) * 0.5, cos(t * 0.13) * 0.4, 0.0);
-  p5 = rotateY(t * 0.18) * rotateZ(t * 0.14) * p5;
+  // Octahedron - position from physics
+  vec3 p5 = p - uShapePos4;
+  p5 = rotateY(uShapeRot4.y) * rotateX(uShapeRot4.x) * rotateZ(uShapeRot4.z) * p5;
   float octa = sdOctahedron(p5, 1.5);
 
   // Find minimum distance and track which shape
