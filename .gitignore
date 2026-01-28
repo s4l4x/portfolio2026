@@ -25,4 +25,6 @@ dist-ssr
 
 # Cache directories
 .vite/
-.claude/
+# Ignore claude settings but keep skills
+.claude/*
+!.claude/skills/
