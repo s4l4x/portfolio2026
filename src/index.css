@@ -26,10 +26,17 @@
   box-sizing: border-box;
 }
 
+html {
+  /* Allow background to extend under browser chrome */
+  min-height: 100vh;
+}
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  /* Ensure body is transparent so background shows through */
+  background: transparent;
 }
 
 h1, h2, h3, h4, h5, h6 {
