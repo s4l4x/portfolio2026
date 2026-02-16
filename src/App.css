@@ -102,18 +102,11 @@
   overflow-x: auto;
   width: 100vw;
   margin-left: calc(50% - 50vw);
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0,0,0,0.15) transparent;
-  padding-bottom: 0.25rem;
+  scrollbar-width: none;
 }
 
 .project-media::-webkit-scrollbar {
-  height: 4px;
-}
-
-.project-media::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.15);
-  border-radius: 2px;
+  display: none;
 }
 
 /* Spacer that aligns first media item with the content left edge */
