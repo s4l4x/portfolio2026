@@ -1,0 +1,166 @@
+.portfolio {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+}
+
+/* Header */
+.header {
+  margin-bottom: 4rem;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header-site {
+  font-size: 0.8rem;
+  color: #888;
+  letter-spacing: 0.02em;
+}
+
+.header-intro {
+  max-width: 680px;
+}
+
+.header-name {
+  font-size: 2.4rem;
+  font-weight: 600;
+  line-height: 1.1;
+  margin: 0 0 1rem;
+  color: #1a1a1a;
+}
+
+.header-bio {
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 480px;
+}
+
+/* Project sections */
+.project {
+  margin-bottom: 3.5rem;
+}
+
+.project--nested {
+  margin-bottom: 2.5rem;
+}
+
+.project-info {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+  margin-bottom: 1.25rem;
+  align-items: start;
+}
+
+.project-meta {
+  min-width: 0;
+}
+
+.project-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin: 0 0 0.35rem;
+  color: #1a1a1a;
+  line-height: 1.2;
+}
+
+.project-title--nested {
+  font-size: 1.3rem;
+}
+
+.project-role {
+  font-size: 0.8rem;
+  color: #666;
+  margin: 0 0 0.15rem;
+  line-height: 1.4;
+}
+
+.project-date {
+  font-size: 0.8rem;
+  color: #999;
+  margin: 0;
+}
+
+.project-description {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: #444;
+  margin: 0;
+}
+
+/* Media grid */
+.project-media {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.15) transparent;
+  padding-bottom: 0.25rem;
+}
+
+.project-media::-webkit-scrollbar {
+  height: 4px;
+}
+
+.project-media::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+  border-radius: 2px;
+}
+
+.media-item {
+  border-radius: 6px;
+  object-fit: cover;
+  height: 280px;
+  width: auto;
+  flex-shrink: 0;
+  background: rgba(0,0,0,0.04);
+}
+
+.media-layered {
+  position: relative;
+  overflow: hidden;
+  height: 280px;
+  border-radius: 6px;
+}
+
+.media-layered .media-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.media-layered .media-fg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .portfolio {
+    padding: 1.5rem 1.25rem 3rem;
+  }
+
+  .header-name {
+    font-size: 1.8rem;
+  }
+
+  .project-info {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .media-item,
+  .media-layered {
+    height: 220px;
+  }
+}
