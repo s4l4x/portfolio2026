@@ -5,9 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit",
+    "generate-lqip": "tsx scripts/generate-lqip.ts",
+    "generate-posters": "bash scripts/generate-posters.sh",
+    "generate-manifest": "tsx src/scripts/generate-manifest.ts",
+    "prebuild": "npm run generate-lqip && npm run generate-posters && npm run generate-manifest"
   },
   "dependencies": {
     "react": "^19.2.0",
@@ -22,7 +27,9 @@
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
+    "glob": "^13.0.3",
     "globals": "^16.5.0",
+    "tsx": "^4.21.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4"

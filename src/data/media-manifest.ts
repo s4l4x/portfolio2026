@@ -18,6 +18,7 @@ export interface VideoManifestEntry {
   width?: number;
   height?: number;
   duration?: number;
+  hasAudio?: boolean;
 }
 
 export type MediaManifestEntry = ImageManifestEntry | VideoManifestEntry;
@@ -41,17 +42,17 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "width": 719,
     "height": 480
   },
-  "g.love.png": {
-    "type": "image",
-    "lqip": "g.love.lqip.webp",
-    "width": 1024,
-    "height": 1024
-  },
   "ixomoxiMissy.png": {
     "type": "image",
     "lqip": "ixomoxiMissy.lqip.webp",
     "width": 960,
     "height": 540
+  },
+  "g.love.png": {
+    "type": "image",
+    "lqip": "g.love.lqip.webp",
+    "width": 1024,
+    "height": 1024
   },
   "dionysianJournalsFG.png": {
     "type": "image",
@@ -142,14 +143,16 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "poster": "periscopeLive360_sizzle.poster.jpg",
     "width": 1920,
     "height": 1080,
-    "duration": 30.24
+    "duration": 30.24,
+    "hasAudio": true
   },
   "Twitter_Viewfinder.mov": {
     "type": "video",
     "poster": "Twitter_Viewfinder.poster.jpg",
     "width": 750,
     "height": 1334,
-    "duration": 36.018798
+    "duration": 36.018798,
+    "hasAudio": true
   },
   "Twitter_Viewfinder-Up-to-4K.mov": {
     "type": "video",
@@ -177,14 +180,16 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "poster": "g.love-IMG_7636-1080p.poster.jpg",
     "width": 1920,
     "height": 1080,
-    "duration": 6.45
+    "duration": 6.45,
+    "hasAudio": true
   },
   "g.love-IMG_7225-1080p.mov": {
     "type": "video",
     "poster": "g.love-IMG_7225-1080p.poster.jpg",
     "width": 608,
     "height": 1080,
-    "duration": 7.766667
+    "duration": 7.766667,
+    "hasAudio": true
   }
 };
 
