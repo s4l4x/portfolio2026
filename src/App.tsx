@@ -80,6 +80,7 @@ function ProjectSection({ project, nested }: { project: Project; nested?: boolea
 
           {project.media.length > 0 && (
             <div className="project-media">
+              <div className="media-gutter" aria-hidden="true" />
               {project.media.map((item, i) => (
                 <MediaDisplay key={i} item={item} />
               ))}

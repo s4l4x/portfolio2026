@@ -95,11 +95,13 @@
   margin: 0;
 }
 
-/* Media grid */
+/* Media grid — breaks out to full viewport width */
 .project-media {
   display: flex;
   gap: 0.6rem;
   overflow-x: auto;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
   scrollbar-width: thin;
   scrollbar-color: rgba(0,0,0,0.15) transparent;
   padding-bottom: 0.25rem;
@@ -112,6 +114,12 @@
 .project-media::-webkit-scrollbar-thumb {
   background: rgba(0,0,0,0.15);
   border-radius: 2px;
+}
+
+/* Spacer that aligns first media item with the content left edge */
+.media-gutter {
+  flex-shrink: 0;
+  width: calc(max((100vw - 1100px) / 2, 0px) + 2rem - 0.6rem);
 }
 
 .media-item {
@@ -157,6 +165,10 @@
   .project-info {
     grid-template-columns: 1fr;
     gap: 0.75rem;
+  }
+
+  .media-gutter {
+    width: calc(1.25rem - 0.6rem);
   }
 
   .media-item,
