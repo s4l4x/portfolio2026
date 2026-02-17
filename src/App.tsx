@@ -4,6 +4,8 @@ import { projects } from './data/projects'
 import { getManifestEntry } from './data/media-manifest'
 import { useVideoAudioManager } from './hooks/useVideoAudioManager'
 import type { AudioManager } from './hooks/useVideoAudioManager'
+import { useVideoLoadQueue } from './hooks/useVideoLoadQueue'
+import type { VideoLoadQueue } from './hooks/useVideoLoadQueue'
 import type { MediaItem, Project } from './types/project'
 
 function formatDateRange(startDate?: string, endDate?: string) {
@@ -107,23 +109,63 @@ function MediaLightbox({ media, onClose }: { media: ExpandedMedia; onClose: () =
   )
 }
 
-function MediaDisplay({ item, audioManager, onMediaTap }: { item: MediaItem; audioManager: AudioManager; onMediaTap?: (item: MediaItem, videoEl: HTMLVideoElement | null) => void }) {
+function MediaDisplay({ item, audioManager, videoLoadQueue, onMediaTap }: { item: MediaItem; audioManager: AudioManager; videoLoadQueue: VideoLoadQueue; onMediaTap?: (item: MediaItem, videoEl: HTMLVideoElement | null) => void }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const idRef = useRef<string>('')
+  const [videoProgress, setVideoProgress] = useState(0)
+  const [videoPlaying, setVideoPlaying] = useState(false)
 
   const manifest = item.type === 'video' ? getManifestEntry(item.src) : undefined
   const hasAudio = manifest?.type === 'video' && manifest.hasAudio === true
 
-  const { register, unregister } = audioManager
+  // Register with audio manager (only for videos with audio)
+  const { register: audioRegister, unregister: audioUnregister } = audioManager
   useEffect(() => {
     if (!hasAudio || !videoRef.current) return
     const id = item.src
     idRef.current = id
-    register(id, videoRef.current)
+    audioRegister(id, videoRef.current)
     return () => {
-      unregister(id)
+      audioUnregister(id)
     }
-  }, [hasAudio, item.src, register, unregister])
+  }, [hasAudio, item.src, audioRegister, audioUnregister])
+
+  // Register with load queue (all videos)
+  const { register: queueRegister, unregister: queueUnregister } = videoLoadQueue
+  useEffect(() => {
+    if (item.type !== 'video') return
+    const el = videoRef.current
+    if (!el) return
+    const id = item.src
+    queueRegister(id, el, item.src)
+    return () => {
+      queueUnregister(id)
+    }
+  }, [item.type, item.src, queueRegister, queueUnregister])
+
+  // Track buffering progress and playing state
+  useEffect(() => {
+    if (item.type !== 'video') return
+    const el = videoRef.current
+    if (!el) return
+
+    const updateProgress = () => {
+      if (el.duration && el.buffered.length > 0) {
+        const end = el.buffered.end(el.buffered.length - 1)
+        setVideoProgress(end / el.duration)
+      }
+    }
+
+    const onPlaying = () => setVideoPlaying(true)
+
+    el.addEventListener('progress', updateProgress)
+    el.addEventListener('playing', onPlaying)
+
+    return () => {
+      el.removeEventListener('progress', updateProgress)
+      el.removeEventListener('playing', onPlaying)
+    }
+  }, [item.type])
 
   const handleTap = useCallback(() => {
     if (onMediaTap) onMediaTap(item, videoRef.current)
@@ -132,20 +174,23 @@ function MediaDisplay({ item, audioManager, onMediaTap }: { item: MediaItem; aud
   if (item.type === 'video') {
     const isUnmuted = hasAudio && audioManager.soundEnabled && audioManager.focusedVideoId === item.src
 
-    if (hasAudio) {
-      return (
-        <div className="video-wrapper" onClick={handleTap} style={{ cursor: 'pointer' }}>
-          <video
-            ref={videoRef}
-            className="media-item"
-            src={item.src}
-            poster={item.posterSrc}
-            muted
-            loop
-            playsInline
-            autoPlay
-            style={item.aspectRatio ? { aspectRatio: item.aspectRatio } : undefined}
-          />
+    return (
+      <div className="video-wrapper" onClick={handleTap} style={{ cursor: onMediaTap ? 'pointer' : undefined }}>
+        <video
+          ref={videoRef}
+          className="media-item"
+          poster={item.posterSrc}
+          muted
+          loop
+          playsInline
+          style={item.aspectRatio ? { aspectRatio: item.aspectRatio } : undefined}
+        />
+        {!videoPlaying && (
+          <div className="video-progress">
+            <div className="video-progress-bar" style={{ width: `${videoProgress * 100}%` }} />
+          </div>
+        )}
+        {hasAudio && (
           <button
             className={`video-sound-btn${isUnmuted ? ' video-sound-btn--unmuted' : ''}`}
             onClick={(e) => { e.stopPropagation(); audioManager.toggleSound() }}
@@ -153,23 +198,8 @@ function MediaDisplay({ item, audioManager, onMediaTap }: { item: MediaItem; aud
           >
             {isUnmuted ? <SpeakerIcon /> : <SpeakerMutedIcon />}
           </button>
-        </div>
-      )
-    }
-
-    return (
-      <video
-        ref={videoRef}
-        className="media-item"
-        src={item.src}
-        poster={item.posterSrc}
-        muted
-        loop
-        playsInline
-        autoPlay
-        onClick={handleTap}
-        style={{ ...(item.aspectRatio ? { aspectRatio: item.aspectRatio } : {}), cursor: onMediaTap ? 'pointer' : undefined }}
-      />
+        )}
+      </div>
     )
   }
 
@@ -198,7 +228,7 @@ function MediaDisplay({ item, audioManager, onMediaTap }: { item: MediaItem; aud
   )
 }
 
-function ProjectSection({ project, nested, audioManager, onMediaTap }: { project: Project; nested?: boolean; audioManager: AudioManager; onMediaTap?: (item: MediaItem, videoEl: HTMLVideoElement | null) => void }) {
+function ProjectSection({ project, nested, audioManager, videoLoadQueue, onMediaTap }: { project: Project; nested?: boolean; audioManager: AudioManager; videoLoadQueue: VideoLoadQueue; onMediaTap?: (item: MediaItem, videoEl: HTMLVideoElement | null) => void }) {
   const dateRange = formatDateRange(project.startDate, project.endDate)
   const showDate = project.showDate !== false
   const hasContent = project.description || project.media.length > 0
@@ -227,7 +257,7 @@ function ProjectSection({ project, nested, audioManager, onMediaTap }: { project
             <div className="project-media">
               <div className="media-gutter" aria-hidden="true" />
               {project.media.map((item, i) => (
-                <MediaDisplay key={i} item={item} audioManager={audioManager} onMediaTap={onMediaTap} />
+                <MediaDisplay key={i} item={item} audioManager={audioManager} videoLoadQueue={videoLoadQueue} onMediaTap={onMediaTap} />
               ))}
             </div>
           )}
@@ -235,7 +265,7 @@ function ProjectSection({ project, nested, audioManager, onMediaTap }: { project
       )}
 
       {project.subProjects?.map((sub, i) => (
-        <ProjectSection key={i} project={sub} nested audioManager={audioManager} onMediaTap={onMediaTap} />
+        <ProjectSection key={i} project={sub} nested audioManager={audioManager} videoLoadQueue={videoLoadQueue} onMediaTap={onMediaTap} />
       ))}
     </section>
   )
@@ -243,10 +273,14 @@ function ProjectSection({ project, nested, audioManager, onMediaTap }: { project
 
 function App() {
   const audioManager = useVideoAudioManager()
+  const videoLoadQueue = useVideoLoadQueue()
   const [expandedMedia, setExpandedMedia] = useState<ExpandedMedia | null>(null)
 
   const handleMediaTap = useCallback((item: MediaItem, videoEl: HTMLVideoElement | null) => {
     const isVideo = item.type === 'video'
+
+    // Force-load this video if it hasn't loaded yet
+    if (isVideo) videoLoadQueue.prioritize(item.src)
 
     if (isVideo && isIOSDevice() && videoEl) {
       // Native iOS fullscreen with landscape support
@@ -268,7 +302,7 @@ function App() {
     // Desktop (or image on any device): open lightbox
     if (isVideo) audioManager.releaseFocus()
     setExpandedMedia({ item, isVideo })
-  }, [audioManager])
+  }, [audioManager, videoLoadQueue])
 
   const closeExpandedMedia = useCallback(() => {
     setExpandedMedia(null)
@@ -284,8 +318,8 @@ function App() {
           <div>
             <h1 className="header-name">Alessandro Sabatelli</h1>
             <p className="header-bio">
-              Designer-Engineer building at the intersection of technology
-              and human experience
+              Designer building at the intersection of technology and human
+              experience
             </p>
           </div>
         </div>
@@ -293,13 +327,21 @@ function App() {
 
       <main>
         {projects.map((project, i) => (
-          <ProjectSection key={i} project={project} audioManager={audioManager} onMediaTap={handleMediaTap} />
+          <ProjectSection
+            key={i}
+            project={project}
+            audioManager={audioManager}
+            videoLoadQueue={videoLoadQueue}
+            onMediaTap={handleMediaTap}
+          />
         ))}
       </main>
 
-      {expandedMedia && <MediaLightbox media={expandedMedia} onClose={closeExpandedMedia} />}
+      {expandedMedia && (
+        <MediaLightbox media={expandedMedia} onClose={closeExpandedMedia} />
+      )}
     </div>
-  )
+  );
 }
 
 export default App

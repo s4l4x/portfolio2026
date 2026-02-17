@@ -145,6 +145,24 @@
   object-fit: contain;
 }
 
+/* Video loading progress */
+.video-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 0 0 6px 6px;
+  overflow: hidden;
+}
+
+.video-progress-bar {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.5);
+  transition: width 0.3s ease;
+}
+
 /* Video audio controls */
 .video-wrapper {
   position: relative;
