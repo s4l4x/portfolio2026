@@ -41,21 +41,17 @@ function MediaDisplay({ item, audioManager }: { item: MediaItem; audioManager: A
   const manifest = item.type === 'video' ? getManifestEntry(item.src) : undefined
   const hasAudio = manifest?.type === 'video' && manifest.hasAudio === true
 
+  const { register, unregister } = audioManager
   useEffect(() => {
     if (!hasAudio || !videoRef.current) return
     const id = item.src
     idRef.current = id
-    audioManager.register(id, videoRef.current)
+    register(id, videoRef.current)
     return () => {
-      audioManager.unregister(id)
+      unregister(id)
     }
-  }, [hasAudio, item.src, audioManager])
+  }, [hasAudio, item.src, register, unregister])
 
-  // Imperatively control muted (React's muted JSX attribute is unreliable)
-  useEffect(() => {
-    if (!videoRef.current || !hasAudio) return
-    videoRef.current.muted = !(audioManager.soundEnabled && audioManager.focusedVideoId === item.src)
-  }, [audioManager.soundEnabled, audioManager.focusedVideoId, hasAudio, item.src])
 
   if (item.type === 'video') {
     const isUnmuted = hasAudio && audioManager.soundEnabled && audioManager.focusedVideoId === item.src
