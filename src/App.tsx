@@ -257,6 +257,8 @@ function App() {
         const onEnd = () => {
           el.muted = true
           el.removeEventListener('webkitendfullscreen', onEnd)
+          // iOS pauses the video after this event fires; delay resume
+          setTimeout(() => { el.play().catch(() => {}) }, 300)
         }
         el.addEventListener('webkitendfullscreen', onEnd)
         return
