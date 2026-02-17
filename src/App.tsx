@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import './App.css'
 import { projects } from './data/projects'
 import { getManifestEntry } from './data/media-manifest'
@@ -34,7 +34,80 @@ function SpeakerMutedIcon() {
   )
 }
 
-function MediaDisplay({ item, audioManager }: { item: MediaItem; audioManager: AudioManager }) {
+function isIOSDevice(): boolean {
+  if (typeof navigator === 'undefined') return false
+  const ua = navigator.userAgent
+  if (/iPhone|iPad|iPod/.test(ua)) return true
+  // iPad requesting desktop site reports as MacIntel but has touch
+  if (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) return true
+  return false
+}
+
+interface ExpandedMedia {
+  item: MediaItem
+  isVideo: boolean
+}
+
+function MediaLightbox({ media, onClose }: { media: ExpandedMedia; onClose: () => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = '' }
+  }, [])
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [onClose])
+
+  useEffect(() => {
+    const el = videoRef.current
+    if (!el) return
+    el.muted = false
+    const p = el.play()
+    if (p) p.catch(() => { el.muted = true; el.play().catch(() => {}) })
+  }, [])
+
+  const { item } = media
+  const styleWithRatio = item.aspectRatio ? { aspectRatio: item.aspectRatio } : undefined
+
+  return (
+    <div className="lightbox-backdrop" onClick={onClose}>
+      {media.isVideo ? (
+        <video
+          ref={videoRef}
+          className="lightbox-media"
+          src={item.src}
+          poster={item.posterSrc}
+          loop
+          playsInline
+          autoPlay
+          onClick={(e) => e.stopPropagation()}
+          style={styleWithRatio}
+        />
+      ) : item.foregroundSrc ? (
+        <div className="lightbox-media lightbox-layered" onClick={(e) => e.stopPropagation()} style={styleWithRatio}>
+          <img src={item.src} alt={item.alt} className="media-bg" />
+          <img src={item.foregroundSrc} alt="" className="media-fg" />
+        </div>
+      ) : (
+        <img
+          className="lightbox-media"
+          src={item.src}
+          alt={item.alt}
+          onClick={(e) => e.stopPropagation()}
+          style={styleWithRatio}
+        />
+      )}
+    </div>
+  )
+}
+
+function MediaDisplay({ item, audioManager, onMediaTap }: { item: MediaItem; audioManager: AudioManager; onMediaTap?: (item: MediaItem, videoEl: HTMLVideoElement | null) => void }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const idRef = useRef<string>('')
 
@@ -52,13 +125,16 @@ function MediaDisplay({ item, audioManager }: { item: MediaItem; audioManager: A
     }
   }, [hasAudio, item.src, register, unregister])
 
+  const handleTap = useCallback(() => {
+    if (onMediaTap) onMediaTap(item, videoRef.current)
+  }, [onMediaTap, item])
 
   if (item.type === 'video') {
     const isUnmuted = hasAudio && audioManager.soundEnabled && audioManager.focusedVideoId === item.src
 
     if (hasAudio) {
       return (
-        <div className="video-wrapper">
+        <div className="video-wrapper" onClick={handleTap} style={{ cursor: 'pointer' }}>
           <video
             ref={videoRef}
             className="media-item"
@@ -72,7 +148,7 @@ function MediaDisplay({ item, audioManager }: { item: MediaItem; audioManager: A
           />
           <button
             className={`video-sound-btn${isUnmuted ? ' video-sound-btn--unmuted' : ''}`}
-            onClick={audioManager.toggleSound}
+            onClick={(e) => { e.stopPropagation(); audioManager.toggleSound() }}
             aria-label={isUnmuted ? 'Mute' : 'Unmute'}
           >
             {isUnmuted ? <SpeakerIcon /> : <SpeakerMutedIcon />}
@@ -83,6 +159,7 @@ function MediaDisplay({ item, audioManager }: { item: MediaItem; audioManager: A
 
     return (
       <video
+        ref={videoRef}
         className="media-item"
         src={item.src}
         poster={item.posterSrc}
@@ -90,7 +167,8 @@ function MediaDisplay({ item, audioManager }: { item: MediaItem; audioManager: A
         loop
         playsInline
         autoPlay
-        style={item.aspectRatio ? { aspectRatio: item.aspectRatio } : undefined}
+        onClick={handleTap}
+        style={{ ...(item.aspectRatio ? { aspectRatio: item.aspectRatio } : {}), cursor: onMediaTap ? 'pointer' : undefined }}
       />
     )
   }
@@ -99,7 +177,8 @@ function MediaDisplay({ item, audioManager }: { item: MediaItem; audioManager: A
     return (
       <div
         className="media-item media-layered"
-        style={item.aspectRatio ? { aspectRatio: item.aspectRatio } : undefined}
+        onClick={handleTap}
+        style={{ ...(item.aspectRatio ? { aspectRatio: item.aspectRatio } : {}), cursor: onMediaTap ? 'pointer' : undefined }}
       >
         <img src={item.src} alt={item.alt} className="media-bg" />
         <img src={item.foregroundSrc} alt="" className="media-fg" />
@@ -113,12 +192,13 @@ function MediaDisplay({ item, audioManager }: { item: MediaItem; audioManager: A
       src={item.src}
       alt={item.alt}
       loading="lazy"
-      style={item.aspectRatio ? { aspectRatio: item.aspectRatio } : undefined}
+      onClick={handleTap}
+      style={{ ...(item.aspectRatio ? { aspectRatio: item.aspectRatio } : {}), cursor: onMediaTap ? 'pointer' : undefined }}
     />
   )
 }
 
-function ProjectSection({ project, nested, audioManager }: { project: Project; nested?: boolean; audioManager: AudioManager }) {
+function ProjectSection({ project, nested, audioManager, onMediaTap }: { project: Project; nested?: boolean; audioManager: AudioManager; onMediaTap?: (item: MediaItem, videoEl: HTMLVideoElement | null) => void }) {
   const dateRange = formatDateRange(project.startDate, project.endDate)
   const showDate = project.showDate !== false
   const hasContent = project.description || project.media.length > 0
@@ -147,7 +227,7 @@ function ProjectSection({ project, nested, audioManager }: { project: Project; n
             <div className="project-media">
               <div className="media-gutter" aria-hidden="true" />
               {project.media.map((item, i) => (
-                <MediaDisplay key={i} item={item} audioManager={audioManager} />
+                <MediaDisplay key={i} item={item} audioManager={audioManager} onMediaTap={onMediaTap} />
               ))}
             </div>
           )}
@@ -155,7 +235,7 @@ function ProjectSection({ project, nested, audioManager }: { project: Project; n
       )}
 
       {project.subProjects?.map((sub, i) => (
-        <ProjectSection key={i} project={sub} nested audioManager={audioManager} />
+        <ProjectSection key={i} project={sub} nested audioManager={audioManager} onMediaTap={onMediaTap} />
       ))}
     </section>
   )
@@ -163,6 +243,34 @@ function ProjectSection({ project, nested, audioManager }: { project: Project; n
 
 function App() {
   const audioManager = useVideoAudioManager()
+  const [expandedMedia, setExpandedMedia] = useState<ExpandedMedia | null>(null)
+
+  const handleMediaTap = useCallback((item: MediaItem, videoEl: HTMLVideoElement | null) => {
+    const isVideo = item.type === 'video'
+
+    if (isVideo && isIOSDevice() && videoEl) {
+      // Native iOS fullscreen with landscape support
+      const el = videoEl as HTMLVideoElement & { webkitEnterFullscreen?: () => void }
+      if (el.webkitEnterFullscreen) {
+        el.muted = false
+        el.webkitEnterFullscreen()
+        const onEnd = () => {
+          el.muted = true
+          el.removeEventListener('webkitendfullscreen', onEnd)
+        }
+        el.addEventListener('webkitendfullscreen', onEnd)
+        return
+      }
+    }
+
+    // Desktop (or image on any device): open lightbox
+    if (isVideo) audioManager.releaseFocus()
+    setExpandedMedia({ item, isVideo })
+  }, [audioManager])
+
+  const closeExpandedMedia = useCallback(() => {
+    setExpandedMedia(null)
+  }, [])
 
   return (
     <div className="portfolio">
@@ -183,9 +291,11 @@ function App() {
 
       <main>
         {projects.map((project, i) => (
-          <ProjectSection key={i} project={project} audioManager={audioManager} />
+          <ProjectSection key={i} project={project} audioManager={audioManager} onMediaTap={handleMediaTap} />
         ))}
       </main>
+
+      {expandedMedia && <MediaLightbox media={expandedMedia} onClose={closeExpandedMedia} />}
     </div>
   )
 }

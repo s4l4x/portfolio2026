@@ -188,6 +188,31 @@
   }
 }
 
+/* Lightbox */
+.lightbox-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.lightbox-media {
+  max-width: calc(100vw - 80px);
+  max-height: calc(100vh - 80px);
+  border-radius: 8px;
+  object-fit: contain;
+  cursor: default;
+}
+
+.lightbox-layered {
+  position: relative;
+  overflow: hidden;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .portfolio {
@@ -214,5 +239,11 @@
 
   .video-wrapper {
     height: 220px;
+  }
+
+  .lightbox-media {
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 32px);
+    border-radius: 6px;
   }
 }

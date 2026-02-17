@@ -4,6 +4,7 @@ export interface AudioManager {
   soundEnabled: boolean
   focusedVideoId: string | null
   toggleSound: () => void
+  releaseFocus: () => void
   register: (id: string, el: HTMLVideoElement) => void
   unregister: (id: string) => void
 }
@@ -126,5 +127,11 @@ export function useVideoAudioManager(): AudioManager {
     setSoundEnabled(next)
   }, [applyMutedStates])
 
-  return { soundEnabled, focusedVideoId, toggleSound, register, unregister }
+  const releaseFocus = useCallback(() => {
+    soundRef.current = false
+    applyMutedStates()
+    setSoundEnabled(false)
+  }, [applyMutedStates])
+
+  return { soundEnabled, focusedVideoId, toggleSound, releaseFocus, register, unregister }
 }
