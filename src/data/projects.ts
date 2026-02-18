@@ -24,6 +24,7 @@ import siriIOS5SnippetFramed from "../assets/apple-hi/siri-iOS5-snippet-framed.p
 // Videos
 import gLoveVideoWhiteGlove from "../assets/g-love/g.love-IMG_7225-1080p.mov";
 import gLoveVideo from "../assets/g-love/g.love-IMG_7636-1080p.mov";
+import ixomoxiEscVideo from "../assets/ixomoxi/ixomoxi_esc_audio-HD.mov";
 import periscopeSizzleVideo from "../assets/twitter/periscopeLive360_sizzle.mp4";
 import twitterBuildingVideo from "../assets/twitter/Twitter_Building_081517-HD-1080p.mov";
 import twitterMarvelVideo from "../assets/twitter/Twitter_Marvel_02-HD-1080p.mov";
@@ -97,6 +98,7 @@ const periscopeSizzlePoster = getAsset(posterModules, 'periscopeLive360_sizzle.p
 const twitterBuildingPoster = getAsset(posterModules, 'Twitter_Building_081517-HD-1080p.poster.jpg');
 const twitterMarvelPoster = getAsset(posterModules, 'Twitter_Marvel_02-HD-1080p.poster.jpg');
 const twitterViewfinderPoster = getAsset(posterModules, 'Twitter_Viewfinder-Up-to-4K.poster.jpg');
+const ixomoxiEscPoster = getAsset(posterModules, 'ixomoxi_esc_audio-HD.poster.jpg');
 
 export const projects: Project[] = [
   {
@@ -291,6 +293,12 @@ export const projects: Project[] = [
     description: "Experiments at the edge of music, technology, and play.",
     startDate: "2024-11",
     media: [
+      {
+        src: ixomoxiEscVideo,
+        type: "video",
+        alt: "IXOMOXI ESC audio visual",
+        posterSrc: ixomoxiEscPoster,
+      },
       {
         src: ixomoxiImage,
         alt: "IXOMOXI visual",

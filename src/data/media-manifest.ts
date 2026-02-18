@@ -30,18 +30,6 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "width": 1600,
     "height": 741
   },
-  "lucyLogo.png": {
-    "type": "image",
-    "lqip": "lucyLogo.lqip.webp",
-    "width": 719,
-    "height": 480
-  },
-  "lucyFifer.png": {
-    "type": "image",
-    "lqip": "lucyFifer.lqip.webp",
-    "width": 719,
-    "height": 480
-  },
   "shower.png": {
     "type": "image",
     "width": 1354,
@@ -57,9 +45,31 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "width": 5616,
     "height": 3744
   },
+  "lucyLogo.png": {
+    "type": "image",
+    "lqip": "lucyLogo.lqip.webp",
+    "width": 719,
+    "height": 480
+  },
+  "lucyFifer.png": {
+    "type": "image",
+    "lqip": "lucyFifer.lqip.webp",
+    "width": 719,
+    "height": 480
+  },
   "ixomoxiMissy.png": {
     "type": "image",
     "lqip": "ixomoxiMissy.lqip.webp",
+    "width": 960,
+    "height": 540
+  },
+  "ixomoxiArtistWorld.jpg": {
+    "type": "image",
+    "width": 960,
+    "height": 540
+  },
+  "ixomoxiArtistWorld-third-person.jpg": {
+    "type": "image",
     "width": 960,
     "height": 540
   },
@@ -343,6 +353,11 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "width": 640,
     "height": 1136
   },
+  "iphone6.png": {
+    "type": "image",
+    "width": 770,
+    "height": 1602
+  },
   "dictation-syrah.png": {
     "type": "image",
     "width": 2304,
@@ -399,6 +414,14 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "width": 608,
     "height": 1080,
     "duration": 14.666667
+  },
+  "ixomoxi_esc_audio-HD.mov": {
+    "type": "video",
+    "poster": "ixomoxi_esc_audio-HD.poster.jpg",
+    "width": 800,
+    "height": 600,
+    "duration": 61.2612,
+    "hasAudio": true
   },
   "g.love-IMG_7636-1080p.mov": {
     "type": "video",
