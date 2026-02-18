@@ -46,77 +46,284 @@ function isIOSDevice(): boolean {
   return false
 }
 
+interface SourceRect {
+  top: number
+  left: number
+  width: number
+  height: number
+}
+
 interface ExpandedMedia {
   item: MediaItem
   isVideo: boolean
+  sourceRect: SourceRect
+  sourceElement: HTMLElement
+  snapshotSrc?: string
+  videoTime?: number
 }
 
-function MediaLightbox({ media, onClose }: { media: ExpandedMedia; onClose: () => void }) {
-  const videoRef = useRef<HTMLVideoElement>(null)
+function computeTargetRect(aspectRatio: number): { top: number; left: number; width: number; height: number } {
+  const isMobile = window.innerWidth <= 768
+  const pad = isMobile ? 16 : 40
+  const maxW = window.innerWidth - pad * 2
+  const maxH = window.innerHeight - pad * 2
 
+  let w: number, h: number
+  if (maxW / maxH > aspectRatio) {
+    h = maxH
+    w = h * aspectRatio
+  } else {
+    w = maxW
+    h = w / aspectRatio
+  }
+
+  return {
+    top: (window.innerHeight - h) / 2,
+    left: (window.innerWidth - w) / 2,
+    width: w,
+    height: h,
+  }
+}
+
+type LightboxPhase = 'entering' | 'open' | 'exiting'
+
+function MediaLightbox({ media, onExitComplete }: { media: ExpandedMedia; onExitComplete: () => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const cloneRef = useRef<HTMLDivElement>(null)
+  const cloneCanvasRef = useRef<HTMLCanvasElement>(null)
+  const [phase, setPhase] = useState<LightboxPhase>('entering')
+  const [contentVisible, setContentVisible] = useState(false)
+  const [backdropVisible, setBackdropVisible] = useState(false)
+  const closingRef = useRef(false)
+
+  const { item, sourceRect, sourceElement } = media
+  const manifest = getManifestEntry(item.src)
+
+  // Compute aspect ratio — fall back to source element dimensions
+  const aspectRatio = manifest?.width && manifest?.height
+    ? manifest.width / manifest.height
+    : sourceRect.width / sourceRect.height
+
+  const targetRect = computeTargetRect(aspectRatio)
+
+  // Compute inverse transform: from target position, translate+scale so it visually sits at source
+  const scaleX = sourceRect.width / targetRect.width
+  const scaleY = sourceRect.height / targetRect.height
+  const translateX = sourceRect.left - targetRect.left + (sourceRect.width - targetRect.width) / 2
+  const translateY = sourceRect.top - targetRect.top + (sourceRect.height - targetRect.height) / 2
+
+  const inverseTransform = `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`
+
+  // Lock body scroll
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = '' }
   }, [])
 
+  // Enter animation: double-rAF to trigger CSS transition
+  useEffect(() => {
+    const clone = cloneRef.current
+    if (!clone) return
+    clone.style.transform = inverseTransform
+    let raf1: number, raf2: number
+    raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        setBackdropVisible(true)
+        clone.classList.add('lightbox-clone--animate')
+        clone.style.transform = 'none'
+      })
+    })
+    return () => { cancelAnimationFrame(raf1); cancelAnimationFrame(raf2) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Transition to "open" after enter animation completes
+  useEffect(() => {
+    const clone = cloneRef.current
+    if (!clone || phase !== 'entering') return
+    const onEnd = (e: TransitionEvent) => {
+      if (e.target !== clone || e.propertyName !== 'transform') return
+      setPhase('open')
+    }
+    clone.addEventListener('transitionend', onEnd)
+    return () => clone.removeEventListener('transitionend', onEnd)
+  }, [phase])
+
+  // When open: mount content (invisible), wait for video readiness, then reveal
+  useEffect(() => {
+    if (phase !== 'open' || contentVisible) return
+
+    if (!media.isVideo) {
+      requestAnimationFrame(() => setContentVisible(true))
+      return
+    }
+
+    // For videos, wait until the video element has seeked to the right frame
+    const el = videoRef.current
+    if (!el) return
+
+    const showAndPlay = () => {
+      setContentVisible(true)
+      el.muted = false
+      const p = el.play()
+      if (p) p.catch(() => { el.muted = true; el.play().catch(() => {}) })
+    }
+
+    if (media.videoTime !== undefined && media.videoTime > 0) {
+      el.currentTime = media.videoTime
+      el.addEventListener('seeked', showAndPlay, { once: true })
+      return () => el.removeEventListener('seeked', showAndPlay)
+    } else if (el.readyState >= 2) {
+      requestAnimationFrame(showAndPlay)
+    } else {
+      el.addEventListener('loadeddata', showAndPlay, { once: true })
+      return () => el.removeEventListener('loadeddata', showAndPlay)
+    }
+  }, [phase, contentVisible, media.isVideo, media.videoTime])
+
+  // Exit animation
+  useEffect(() => {
+    if (phase !== 'exiting') return
+    const clone = cloneRef.current
+    if (!clone) return
+
+    // Re-query source element position (may have scrolled)
+    const currentSourceRect = sourceElement.getBoundingClientRect()
+    const isVisible = currentSourceRect.top < window.innerHeight && currentSourceRect.bottom > 0
+      && currentSourceRect.left < window.innerWidth && currentSourceRect.right > 0
+
+    if (isVisible) {
+      const exitScaleX = currentSourceRect.width / targetRect.width
+      const exitScaleY = currentSourceRect.height / targetRect.height
+      const exitTranslateX = currentSourceRect.left - targetRect.left + (currentSourceRect.width - targetRect.width) / 2
+      const exitTranslateY = currentSourceRect.top - targetRect.top + (currentSourceRect.height - targetRect.height) / 2
+      const exitTransform = `translate(${exitTranslateX}px, ${exitTranslateY}px) scale(${exitScaleX}, ${exitScaleY})`
+
+      clone.classList.remove('lightbox-clone--animate')
+      void clone.offsetHeight
+      clone.classList.add('lightbox-clone--exit')
+      clone.style.transform = exitTransform
+    } else {
+      clone.classList.remove('lightbox-clone--animate', 'lightbox-clone--exit')
+      clone.classList.add('lightbox-clone--fade-exit')
+    }
+
+    const onEnd = () => onExitComplete()
+    clone.addEventListener('transitionend', onEnd, { once: true })
+    return () => clone.removeEventListener('transitionend', onEnd)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase])
+
+  const handleClose = useCallback(() => {
+    if (closingRef.current) return
+    closingRef.current = true
+
+    if (media.isVideo && videoRef.current) {
+      const vid = videoRef.current
+
+      // Sync grid video to lightbox position and pause it so the frame stays put
+      const gridVideo = sourceElement.querySelector('video')
+      if (gridVideo) {
+        gridVideo.currentTime = vid.currentTime
+        gridVideo.pause()
+      }
+
+      // Draw current video frame to the clone's canvas (synchronous — no decode needed)
+      const canvas = cloneCanvasRef.current
+      if (canvas) {
+        canvas.width = vid.videoWidth || vid.clientWidth
+        canvas.height = vid.videoHeight || vid.clientHeight
+        const ctx = canvas.getContext('2d')
+        if (ctx) {
+          ctx.drawImage(vid, 0, 0, canvas.width, canvas.height)
+          canvas.style.display = 'block'
+        }
+      }
+    }
+
+    setContentVisible(false)
+    setPhase('exiting')
+  }, [media.isVideo, sourceElement])
+
+  // Escape key
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') handleClose()
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [onClose])
+  }, [handleClose])
 
-  useEffect(() => {
-    const el = videoRef.current
-    if (!el) return
-    el.muted = false
-    const p = el.play()
-    if (p) p.catch(() => { el.muted = true; el.play().catch(() => {}) })
-  }, [])
+  const snapshotSrc = media.snapshotSrc || item.posterSrc || item.src
+  const backdropClass = `lightbox-backdrop${phase === 'exiting' ? ' lightbox-backdrop--exit' : backdropVisible ? ' lightbox-backdrop--visible' : ''}`
 
-  const { item } = media
-  const manifest = getManifestEntry(item.src)
-  const aspectRatio = manifest?.width && manifest?.height ? manifest.width / manifest.height : undefined
-  const styleWithRatio = aspectRatio ? { aspectRatio } : undefined
+  const cloneStyle: React.CSSProperties = {
+    top: targetRect.top,
+    left: targetRect.left,
+    width: targetRect.width,
+    height: targetRect.height,
+    zIndex: 1001,
+    borderRadius: 8,
+  }
+
+  const contentStyle: React.CSSProperties = {
+    top: targetRect.top,
+    left: targetRect.left,
+    width: targetRect.width,
+    height: targetRect.height,
+  }
+
+  // Mount content in 'open' phase (video needs DOM for seek); visibility via CSS
+  const renderContent = phase === 'open'
 
   return (
-    <div className="lightbox-backdrop" onClick={onClose}>
-      {media.isVideo ? (
-        <video
-          ref={videoRef}
-          className="lightbox-media"
-          src={item.src}
-          poster={item.posterSrc}
-          loop
-          playsInline
-          autoPlay
-          onClick={(e) => e.stopPropagation()}
-          style={styleWithRatio}
-        />
-      ) : item.foregroundSrc ? (
-        <div className="lightbox-media lightbox-layered" onClick={(e) => e.stopPropagation()} style={styleWithRatio}>
-          {item.shader ? (
-            <ShaderCanvas imageSrc={item.src} className="media-bg" />
-          ) : (
-            <img src={item.src} alt={item.alt} className="media-bg" />
-          )}
-          <img src={item.foregroundSrc} alt="" className="media-fg" />
+    <>
+      <div className={backdropClass} onClick={handleClose} />
+      <div ref={cloneRef} className="lightbox-clone" style={cloneStyle} onClick={handleClose}>
+        <img src={snapshotSrc} alt={item.alt || ''} onClick={(e) => e.stopPropagation()} />
+        {media.isVideo && (
+          <canvas
+            ref={cloneCanvasRef}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'none' }}
+          />
+        )}
+      </div>
+      {renderContent && (
+        <div
+          className={`lightbox-content${contentVisible ? ' lightbox-content--visible' : ' lightbox-content--entering'}`}
+          style={contentStyle}
+          onClick={handleClose}
+        >
+          {media.isVideo ? (
+            <video
+              ref={videoRef}
+              src={item.src}
+              poster={media.snapshotSrc || item.posterSrc}
+              loop
+              playsInline
+              onClick={(e) => e.stopPropagation()}
+              style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 8 }}
+            />
+          ) : item.foregroundSrc ? (
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden', borderRadius: 8 }}
+            >
+              {item.shader ? (
+                <ShaderCanvas imageSrc={item.src} className="media-bg" />
+              ) : (
+                <img src={item.src} alt={item.alt} className="media-bg" />
+              )}
+              <img src={item.foregroundSrc} alt="" className="media-fg" />
+            </div>
+          ) : null}
         </div>
-      ) : (
-        <img
-          className="lightbox-media"
-          src={item.src}
-          alt={item.alt}
-          onClick={(e) => e.stopPropagation()}
-          style={styleWithRatio}
-        />
       )}
-    </div>
+    </>
   )
 }
 
-function MediaDisplay({ item, audioManager, videoLoadQueue, onMediaTap }: { item: MediaItem; audioManager: AudioManager; videoLoadQueue: VideoLoadQueue; onMediaTap?: (item: MediaItem, videoEl: HTMLVideoElement | null) => void }) {
+function MediaDisplay({ item, audioManager, videoLoadQueue, onMediaTap }: { item: MediaItem; audioManager: AudioManager; videoLoadQueue: VideoLoadQueue; onMediaTap?: (item: MediaItem, videoEl: HTMLVideoElement | null, sourceElement: HTMLElement) => void }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const idRef = useRef<string>('')
   const [videoProgress, setVideoProgress] = useState(0)
@@ -175,8 +382,8 @@ function MediaDisplay({ item, audioManager, videoLoadQueue, onMediaTap }: { item
     }
   }, [item.type])
 
-  const handleTap = useCallback(() => {
-    if (onMediaTap) onMediaTap(item, videoRef.current)
+  const handleTap = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    if (onMediaTap) onMediaTap(item, videoRef.current, e.currentTarget)
   }, [onMediaTap, item])
 
   if (item.type === 'video') {
@@ -240,7 +447,7 @@ function MediaDisplay({ item, audioManager, videoLoadQueue, onMediaTap }: { item
   )
 }
 
-function ProjectSection({ project, nested, audioManager, videoLoadQueue, onMediaTap }: { project: Project; nested?: boolean; audioManager: AudioManager; videoLoadQueue: VideoLoadQueue; onMediaTap?: (item: MediaItem, videoEl: HTMLVideoElement | null) => void }) {
+function ProjectSection({ project, nested, audioManager, videoLoadQueue, onMediaTap }: { project: Project; nested?: boolean; audioManager: AudioManager; videoLoadQueue: VideoLoadQueue; onMediaTap?: (item: MediaItem, videoEl: HTMLVideoElement | null, sourceElement: HTMLElement) => void }) {
   const dateRange = formatDateRange(project.startDate, project.endDate)
   const showDate = project.showDate !== false
   const hasContent = project.description || project.media.length > 0
@@ -288,7 +495,10 @@ function App() {
   const videoLoadQueue = useVideoLoadQueue()
   const [expandedMedia, setExpandedMedia] = useState<ExpandedMedia | null>(null)
 
-  const handleMediaTap = useCallback((item: MediaItem, videoEl: HTMLVideoElement | null) => {
+  const handleMediaTap = useCallback((item: MediaItem, videoEl: HTMLVideoElement | null, sourceElement: HTMLElement) => {
+    // Guard against opening while exiting
+    if (expandedMedia) return
+
     const isVideo = item.type === 'video'
 
     // Force-load this video if it hasn't loaded yet
@@ -311,14 +521,50 @@ function App() {
       }
     }
 
+    // Capture source position for FLIP animation
+    const rect = sourceElement.getBoundingClientRect()
+    const sourceRect: SourceRect = { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
+
+    // Apply ghost class to source element
+    const ghostClass = isVideo ? 'video-wrapper--ghost' : 'media-item--ghost'
+    sourceElement.classList.add(ghostClass)
+
+    // Capture current video frame and timestamp for seamless transition
+    let snapshotSrc: string | undefined
+    let videoTime: number | undefined
+    if (isVideo && videoEl) {
+      videoTime = videoEl.currentTime
+      try {
+        const canvas = document.createElement('canvas')
+        canvas.width = videoEl.videoWidth || videoEl.clientWidth
+        canvas.height = videoEl.videoHeight || videoEl.clientHeight
+        const ctx = canvas.getContext('2d')
+        if (ctx) {
+          ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height)
+          snapshotSrc = canvas.toDataURL('image/jpeg', 0.85)
+        }
+      } catch {
+        // CORS or other error — fall back to poster
+      }
+    }
+
     // Desktop (or image on any device): open lightbox
     if (isVideo) audioManager.releaseFocus()
-    setExpandedMedia({ item, isVideo })
-  }, [audioManager, videoLoadQueue])
+    setExpandedMedia({ item, isVideo, sourceRect, sourceElement, snapshotSrc, videoTime })
+  }, [audioManager, videoLoadQueue, expandedMedia])
 
-  const closeExpandedMedia = useCallback(() => {
+  const handleExitComplete = useCallback(() => {
+    if (!expandedMedia) return
+    const { sourceElement, isVideo } = expandedMedia
+    const ghostClass = isVideo ? 'video-wrapper--ghost' : 'media-item--ghost'
+    sourceElement.classList.remove(ghostClass)
+    // Resume grid video playback (was paused on close for frame alignment)
+    if (isVideo) {
+      const gridVideo = sourceElement.querySelector('video')
+      if (gridVideo) gridVideo.play().catch(() => {})
+    }
     setExpandedMedia(null)
-  }, [])
+  }, [expandedMedia])
 
   return (
     <div className="portfolio">
@@ -350,7 +596,7 @@ function App() {
       </main>
 
       {expandedMedia && (
-        <MediaLightbox media={expandedMedia} onClose={closeExpandedMedia} />
+        <MediaLightbox media={expandedMedia} onExitComplete={handleExitComplete} />
       )}
     </div>
   );
