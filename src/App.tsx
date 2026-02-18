@@ -89,10 +89,10 @@ type LightboxPhase = 'entering' | 'open' | 'exiting'
 
 function MediaLightbox({ media, onExitComplete }: { media: ExpandedMedia; onExitComplete: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const cloneRef = useRef<HTMLDivElement>(null)
-  const cloneCanvasRef = useRef<HTMLCanvasElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const audioCtxRef = useRef<AudioContext | null>(null)
+  const gainRef = useRef<GainNode | null>(null)
   const [phase, setPhase] = useState<LightboxPhase>('entering')
-  const [contentVisible, setContentVisible] = useState(false)
   const [backdropVisible, setBackdropVisible] = useState(false)
   const closingRef = useRef(false)
 
@@ -114,23 +114,26 @@ function MediaLightbox({ media, onExitComplete }: { media: ExpandedMedia; onExit
 
   const inverseTransform = `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`
 
-  // Lock body scroll
+  // Lock body scroll, clean up AudioContext
   useEffect(() => {
     document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = '' }
+    return () => {
+      document.body.style.overflow = ''
+      audioCtxRef.current?.close()
+    }
   }, [])
 
   // Enter animation: double-rAF to trigger CSS transition
   useEffect(() => {
-    const clone = cloneRef.current
-    if (!clone) return
-    clone.style.transform = inverseTransform
+    const container = containerRef.current
+    if (!container) return
+    container.style.transform = inverseTransform
     let raf1: number, raf2: number
     raf1 = requestAnimationFrame(() => {
       raf2 = requestAnimationFrame(() => {
         setBackdropVisible(true)
-        clone.classList.add('lightbox-clone--animate')
-        clone.style.transform = 'none'
+        container.classList.add('lightbox-clone--animate')
+        container.style.transform = 'none'
       })
     })
     return () => { cancelAnimationFrame(raf1); cancelAnimationFrame(raf2) }
@@ -139,53 +142,69 @@ function MediaLightbox({ media, onExitComplete }: { media: ExpandedMedia; onExit
 
   // Transition to "open" after enter animation completes
   useEffect(() => {
-    const clone = cloneRef.current
-    if (!clone || phase !== 'entering') return
+    const container = containerRef.current
+    if (!container || phase !== 'entering') return
     const onEnd = (e: TransitionEvent) => {
-      if (e.target !== clone || e.propertyName !== 'transform') return
+      if (e.target !== container || e.propertyName !== 'transform') return
       setPhase('open')
     }
-    clone.addEventListener('transitionend', onEnd)
-    return () => clone.removeEventListener('transitionend', onEnd)
+    container.addEventListener('transitionend', onEnd)
+    return () => container.removeEventListener('transitionend', onEnd)
   }, [phase])
 
-  // When open: mount content (invisible), wait for video readiness, then reveal
+  // Immediately seek and play muted so the video is live during fly-in
   useEffect(() => {
-    if (phase !== 'open' || contentVisible) return
-
-    if (!media.isVideo) {
-      requestAnimationFrame(() => setContentVisible(true))
-      return
-    }
-
-    // For videos, wait until the video element has seeked to the right frame
+    if (!media.isVideo) return
     const el = videoRef.current
     if (!el) return
 
-    const showAndPlay = () => {
-      setContentVisible(true)
-      el.muted = false
-      const p = el.play()
-      if (p) p.catch(() => { el.muted = true; el.play().catch(() => {}) })
+    const playMuted = () => {
+      el.muted = true
+      el.play().catch(() => {})
     }
 
     if (media.videoTime !== undefined && media.videoTime > 0) {
       el.currentTime = media.videoTime
-      el.addEventListener('seeked', showAndPlay, { once: true })
-      return () => el.removeEventListener('seeked', showAndPlay)
+      el.addEventListener('seeked', playMuted, { once: true })
+      return () => el.removeEventListener('seeked', playMuted)
     } else if (el.readyState >= 2) {
-      requestAnimationFrame(showAndPlay)
+      playMuted()
     } else {
-      el.addEventListener('loadeddata', showAndPlay, { once: true })
-      return () => el.removeEventListener('loadeddata', showAndPlay)
+      el.addEventListener('loadeddata', playMuted, { once: true })
+      return () => el.removeEventListener('loadeddata', playMuted)
     }
-  }, [phase, contentVisible, media.isVideo, media.videoTime])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // When animation lands: route through Web Audio and unmute
+  useEffect(() => {
+    if (phase !== 'open' || !media.isVideo) return
+    const el = videoRef.current
+    if (!el) return
+
+    // Route audio through Web Audio API for sample-accurate fade on close
+    try {
+      const ctx = new AudioContext()
+      const source = ctx.createMediaElementSource(el)
+      const gain = ctx.createGain()
+      source.connect(gain)
+      gain.connect(ctx.destination)
+      audioCtxRef.current = ctx
+      gainRef.current = gain
+    } catch {
+      // Fallback: direct audio (may click on close)
+    }
+
+    el.muted = false
+    const p = el.play()
+    if (p) p.catch(() => { el.muted = true; el.play().catch(() => {}) })
+  }, [phase, media.isVideo])
 
   // Exit animation
   useEffect(() => {
     if (phase !== 'exiting') return
-    const clone = cloneRef.current
-    if (!clone) return
+    const container = containerRef.current
+    if (!container) return
 
     // Re-query source element position (may have scrolled)
     const currentSourceRect = sourceElement.getBoundingClientRect()
@@ -199,18 +218,18 @@ function MediaLightbox({ media, onExitComplete }: { media: ExpandedMedia; onExit
       const exitTranslateY = currentSourceRect.top - targetRect.top + (currentSourceRect.height - targetRect.height) / 2
       const exitTransform = `translate(${exitTranslateX}px, ${exitTranslateY}px) scale(${exitScaleX}, ${exitScaleY})`
 
-      clone.classList.remove('lightbox-clone--animate')
-      void clone.offsetHeight
-      clone.classList.add('lightbox-clone--exit')
-      clone.style.transform = exitTransform
+      container.classList.remove('lightbox-clone--animate')
+      void container.offsetHeight
+      container.classList.add('lightbox-clone--exit')
+      container.style.transform = exitTransform
     } else {
-      clone.classList.remove('lightbox-clone--animate', 'lightbox-clone--exit')
-      clone.classList.add('lightbox-clone--fade-exit')
+      container.classList.remove('lightbox-clone--animate', 'lightbox-clone--exit')
+      container.classList.add('lightbox-clone--fade-exit')
     }
 
     const onEnd = () => onExitComplete()
-    clone.addEventListener('transitionend', onEnd, { once: true })
-    return () => clone.removeEventListener('transitionend', onEnd)
+    container.addEventListener('transitionend', onEnd, { once: true })
+    return () => container.removeEventListener('transitionend', onEnd)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase])
 
@@ -221,27 +240,23 @@ function MediaLightbox({ media, onExitComplete }: { media: ExpandedMedia; onExit
     if (media.isVideo && videoRef.current) {
       const vid = videoRef.current
 
-      // Sync grid video to lightbox position and pause it so the frame stays put
+      // Sample-accurate fade via Web Audio gain ramp (no clicks)
+      const ctx = audioCtxRef.current
+      const gain = gainRef.current
+      if (ctx && gain) {
+        gain.gain.setValueAtTime(gain.gain.value, ctx.currentTime)
+        gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3)
+      } else {
+        vid.muted = true
+      }
+
+      // Sync grid video to lightbox position
       const gridVideo = sourceElement.querySelector('video')
       if (gridVideo) {
         gridVideo.currentTime = vid.currentTime
-        gridVideo.pause()
-      }
-
-      // Draw current video frame to the clone's canvas (synchronous — no decode needed)
-      const canvas = cloneCanvasRef.current
-      if (canvas) {
-        canvas.width = vid.videoWidth || vid.clientWidth
-        canvas.height = vid.videoHeight || vid.clientHeight
-        const ctx = canvas.getContext('2d')
-        if (ctx) {
-          ctx.drawImage(vid, 0, 0, canvas.width, canvas.height)
-          canvas.style.display = 'block'
-        }
       }
     }
 
-    setContentVisible(false)
     setPhase('exiting')
   }, [media.isVideo, sourceElement])
 
@@ -257,7 +272,7 @@ function MediaLightbox({ media, onExitComplete }: { media: ExpandedMedia; onExit
   const snapshotSrc = media.snapshotSrc || item.posterSrc || item.src
   const backdropClass = `lightbox-backdrop${phase === 'exiting' ? ' lightbox-backdrop--exit' : backdropVisible ? ' lightbox-backdrop--visible' : ''}`
 
-  const cloneStyle: React.CSSProperties = {
+  const containerStyle: React.CSSProperties = {
     top: targetRect.top,
     left: targetRect.left,
     width: targetRect.width,
@@ -266,59 +281,46 @@ function MediaLightbox({ media, onExitComplete }: { media: ExpandedMedia; onExit
     borderRadius: 8,
   }
 
-  const contentStyle: React.CSSProperties = {
-    top: targetRect.top,
-    left: targetRect.left,
-    width: targetRect.width,
-    height: targetRect.height,
-  }
+  // Render real content directly in the animated container
+  const renderContent = () => {
+    if (media.isVideo) {
+      return (
+        <video
+          ref={videoRef}
+          src={item.src}
+          poster={snapshotSrc}
+          loop
+          playsInline
+          onClick={(e) => e.stopPropagation()}
+        />
+      )
+    }
 
-  // Mount content in 'open' phase (video needs DOM for seek); visibility via CSS
-  const renderContent = phase === 'open'
+    if (item.foregroundSrc) {
+      return (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}
+        >
+          {item.shader ? (
+            <ShaderCanvas imageSrc={item.src} className="media-bg" />
+          ) : (
+            <img src={item.src} alt={item.alt} className="media-bg" />
+          )}
+          <img src={item.foregroundSrc} alt="" className="media-fg" />
+        </div>
+      )
+    }
+
+    return <img src={snapshotSrc} alt={item.alt || ''} onClick={(e) => e.stopPropagation()} />
+  }
 
   return (
     <>
       <div className={backdropClass} onClick={handleClose} />
-      <div ref={cloneRef} className="lightbox-clone" style={cloneStyle} onClick={handleClose}>
-        <img src={snapshotSrc} alt={item.alt || ''} onClick={(e) => e.stopPropagation()} />
-        {media.isVideo && (
-          <canvas
-            ref={cloneCanvasRef}
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'none' }}
-          />
-        )}
+      <div ref={containerRef} className="lightbox-clone" style={containerStyle} onClick={handleClose}>
+        {renderContent()}
       </div>
-      {renderContent && (
-        <div
-          className={`lightbox-content${contentVisible ? ' lightbox-content--visible' : ' lightbox-content--entering'}`}
-          style={contentStyle}
-          onClick={handleClose}
-        >
-          {media.isVideo ? (
-            <video
-              ref={videoRef}
-              src={item.src}
-              poster={media.snapshotSrc || item.posterSrc}
-              loop
-              playsInline
-              onClick={(e) => e.stopPropagation()}
-              style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 8 }}
-            />
-          ) : item.foregroundSrc ? (
-            <div
-              onClick={(e) => e.stopPropagation()}
-              style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden', borderRadius: 8 }}
-            >
-              {item.shader ? (
-                <ShaderCanvas imageSrc={item.src} className="media-bg" />
-              ) : (
-                <img src={item.src} alt={item.alt} className="media-bg" />
-              )}
-              <img src={item.foregroundSrc} alt="" className="media-fg" />
-            </div>
-          ) : null}
-        </div>
-      )}
     </>
   )
 }
