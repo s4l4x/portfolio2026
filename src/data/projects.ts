@@ -180,45 +180,6 @@ export const projects: Project[] = [
     ],
   },
   {
-    title: "Fun Projects",
-    description: "",
-    media: [],
-    subProjects: [
-      {
-        title: "Apollo Neuro",
-        company: "Apollo Neuro",
-        role: "Design & Engineering",
-        description:
-          "Apollo is a hybrid hardware and mobile experience designed to help people feel calmer, more focused, and more present. The intro experience pairs tactile sensation with real-time Metal shaders that makes each moment feel immediate and grounded.",
-        startDate: "2025-08",
-        showDate: false,
-        media: [
-          {
-            src: apolloImage,
-            alt: "Apollo Neuroscience app",
-            lqipSrc: apolloLqip,
-          },
-        ],
-      },
-      {
-        title: "The Dionysian Journals",
-        role: "Album Artist",
-        description:
-          "An album exploring ecstasy, transformation, and the loss of fixed identity. Inspired by the cult of Dionysus, driven by sensation, emotion, and perception, it merges into a single, luminous state.",
-        startDate: "2025-03",
-        showDate: false,
-        media: [
-          {
-            src: dionysianBG,
-            foregroundSrc: dionysianFG,
-            alt: "The Dionysian Journals album art",
-            lqipSrc: dionysianBGLqip,
-          },
-        ],
-      },
-    ],
-  },
-  {
     title: "Periscope Live 360",
     company: "Twitter",
     role: "Director of AR/VR",
@@ -263,6 +224,40 @@ export const projects: Project[] = [
     ],
   },
   {
+    title: "IXOMOXI",
+    description: "Experiments at the edge of music, technology, and play.",
+    startDate: "2024-11",
+    company: "IXOMOXI",
+    role: "Founder",
+    media: [
+      {
+        title: "IXOMOXI ESC",
+        description:
+          "Music videos x1000. Immerse yourself in audio reactive music videos.",
+        startDate: "2016-02",
+        src: ixomoxiEscVideo,
+        type: "video",
+        alt: "IXOMOXI ESC audio visual",
+        posterSrc: ixomoxiEscPoster,
+      },
+      {
+        title: "Lucy",
+        description: "See the world through Lucy's eyes.",
+        startDate: "",
+        src: lucyFiferImage,
+        foregroundSrc: lucyLogoImage,
+        shader: "colorCycle",
+        alt: "Lucy",
+        lqipSrc: lucyFiferLqip,
+      },
+      {
+        src: ixomoxiImage,
+        alt: "IXOMOXI visual",
+        lqipSrc: ixomoxiLqip,
+      },
+    ],
+  },
+  {
     title: "Apple Human Interface",
     company: "Apple",
     role: "Designer",
@@ -287,38 +282,29 @@ export const projects: Project[] = [
     ],
   },
   {
-    title: "IXOMOXI",
-    company: "IXOMOXI",
-    role: "Founder",
-    description: "Experiments at the edge of music, technology, and play.",
-    startDate: "2024-11",
+    title: "Personal Projects",
+    description: "",
     media: [
       {
-        src: ixomoxiEscVideo,
-        type: "video",
-        alt: "IXOMOXI ESC audio visual",
-        posterSrc: ixomoxiEscPoster,
+        title: "The Dionysian Journals",
+        role: "Album Artist",
+        description:
+          "An album exploring ecstasy, transformation, and the loss of fixed identity. Inspired by the cult of Dionysus, driven by sensation, emotion, and perception, it merges into a single, luminous state.",
+        startDate: "2025-03",
+        src: dionysianBG,
+        foregroundSrc: dionysianFG,
+        alt: "The Dionysian Journals album art",
+        lqipSrc: dionysianBGLqip,
       },
       {
-        src: ixomoxiImage,
-        alt: "IXOMOXI visual",
-        lqipSrc: ixomoxiLqip,
-      },
-    ],
-  },
-  {
-    title: "Lucy",
-    company: "Personal Project",
-    role: "Creator",
-    description: "See the world through Lucy's eyes.",
-    startDate: "2024-11",
-    media: [
-      {
-        src: lucyFiferImage,
-        foregroundSrc: lucyLogoImage,
-        shader: "colorCycle",
-        alt: "Lucy",
-        lqipSrc: lucyFiferLqip,
+        title: "Apollo Neuro",
+        role: "Design & Engineering",
+        description:
+          "Apollo is a hybrid hardware and mobile experience designed to help people feel calmer, more focused, and more present. The intro experience pairs tactile sensation with real-time Metal shaders that makes each moment feel immediate and grounded.",
+        startDate: "2025-08",
+        src: apolloImage,
+        alt: "Apollo Neuroscience app",
+        lqipSrc: apolloLqip,
       },
     ],
   },
