@@ -7,6 +7,7 @@ import type { AudioManager } from './hooks/useVideoAudioManager'
 import { useVideoLoadQueue } from './hooks/useVideoLoadQueue'
 import type { VideoLoadQueue } from './hooks/useVideoLoadQueue'
 import type { MediaItem, Project } from './types/project'
+import { ShaderCanvas } from './components/ShaderCanvas'
 
 function formatDateRange(startDate?: string, endDate?: string) {
   if (!startDate) return null
@@ -95,7 +96,11 @@ function MediaLightbox({ media, onClose }: { media: ExpandedMedia; onClose: () =
         />
       ) : item.foregroundSrc ? (
         <div className="lightbox-media lightbox-layered" onClick={(e) => e.stopPropagation()} style={styleWithRatio}>
-          <img src={item.src} alt={item.alt} className={`media-bg${media.item.cssEffect === 'colorCycle' ? ' media-bg--color-cycle' : ''}`} />
+          {item.shader ? (
+            <ShaderCanvas imageSrc={item.src} className="media-bg" />
+          ) : (
+            <img src={item.src} alt={item.alt} className="media-bg" />
+          )}
           <img src={item.foregroundSrc} alt="" className="media-fg" />
         </div>
       ) : (
@@ -213,7 +218,11 @@ function MediaDisplay({ item, audioManager, videoLoadQueue, onMediaTap }: { item
         onClick={handleTap}
         style={{ ...(aspectRatio ? { aspectRatio } : {}), cursor: onMediaTap ? 'pointer' : undefined }}
       >
-        <img src={item.src} alt={item.alt} className={`media-bg${item.cssEffect === 'colorCycle' ? ' media-bg--color-cycle' : ''}`} />
+        {item.shader ? (
+          <ShaderCanvas imageSrc={item.src} className="media-bg" />
+        ) : (
+          <img src={item.src} alt={item.alt} className="media-bg" />
+        )}
         <img src={item.foregroundSrc} alt="" className="media-fg" />
       </div>
     )

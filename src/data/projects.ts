@@ -308,7 +308,7 @@ export const projects: Project[] = [
       {
         src: lucyFiferImage,
         foregroundSrc: lucyLogoImage,
-        cssEffect: "colorCycle",
+        shader: "colorCycle",
         alt: "Lucy",
         lqipSrc: lucyFiferLqip,
       },

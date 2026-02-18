@@ -6,7 +6,6 @@ export interface MediaItem {
   lqipSrc?: string;
   foregroundSrc?: string;
   shader?: string;
-  cssEffect?: string;
 }
 
 export interface Project {
