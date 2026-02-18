@@ -515,8 +515,16 @@ function App() {
         const onEnd = () => {
           el.muted = true
           el.removeEventListener('webkitendfullscreen', onEnd)
-          // iOS pauses the video after this event fires; delay resume
-          setTimeout(() => { el.play().catch(() => {}) }, 300)
+          // iOS fires a deferred pause after exiting fullscreen (especially
+          // via the (x) button). Listen for it and resume from there instead
+          // of racing with a timeout.
+          const onPause = () => {
+            el.removeEventListener('pause', onPause)
+            el.play().catch(() => {})
+          }
+          el.addEventListener('pause', onPause)
+          // Also try immediately in case the pause already happened (swipe dismiss)
+          el.play().catch(() => {})
         }
         el.addEventListener('webkitendfullscreen', onEnd)
         return
