@@ -145,6 +145,16 @@
   object-fit: contain;
 }
 
+/* Color cycle effect */
+@keyframes colorCycle {
+  from { filter: hue-rotate(0deg); }
+  to { filter: hue-rotate(360deg); }
+}
+
+.media-bg--color-cycle {
+  animation: colorCycle 1s linear infinite;
+}
+
 /* Video loading progress */
 .video-progress {
   position: absolute;

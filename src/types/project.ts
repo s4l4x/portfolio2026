@@ -3,10 +3,10 @@ export interface MediaItem {
   type?: 'video';
   alt: string;
   posterSrc?: string;
-  aspectRatio?: number;
   lqipSrc?: string;
   foregroundSrc?: string;
   shader?: string;
+  cssEffect?: string;
 }
 
 export interface Project {

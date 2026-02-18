@@ -75,7 +75,9 @@ function MediaLightbox({ media, onClose }: { media: ExpandedMedia; onClose: () =
   }, [])
 
   const { item } = media
-  const styleWithRatio = item.aspectRatio ? { aspectRatio: item.aspectRatio } : undefined
+  const manifest = getManifestEntry(item.src)
+  const aspectRatio = manifest?.width && manifest?.height ? manifest.width / manifest.height : undefined
+  const styleWithRatio = aspectRatio ? { aspectRatio } : undefined
 
   return (
     <div className="lightbox-backdrop" onClick={onClose}>
@@ -93,7 +95,7 @@ function MediaLightbox({ media, onClose }: { media: ExpandedMedia; onClose: () =
         />
       ) : item.foregroundSrc ? (
         <div className="lightbox-media lightbox-layered" onClick={(e) => e.stopPropagation()} style={styleWithRatio}>
-          <img src={item.src} alt={item.alt} className="media-bg" />
+          <img src={item.src} alt={item.alt} className={`media-bg${media.item.cssEffect === 'colorCycle' ? ' media-bg--color-cycle' : ''}`} />
           <img src={item.foregroundSrc} alt="" className="media-fg" />
         </div>
       ) : (
@@ -115,8 +117,9 @@ function MediaDisplay({ item, audioManager, videoLoadQueue, onMediaTap }: { item
   const [videoProgress, setVideoProgress] = useState(0)
   const [videoPlaying, setVideoPlaying] = useState(false)
 
-  const manifest = item.type === 'video' ? getManifestEntry(item.src) : undefined
+  const manifest = getManifestEntry(item.src)
   const hasAudio = manifest?.type === 'video' && manifest.hasAudio === true
+  const aspectRatio = manifest?.width && manifest?.height ? manifest.width / manifest.height : undefined
 
   // Register with audio manager (only for videos with audio)
   const { register: audioRegister, unregister: audioUnregister } = audioManager
@@ -183,7 +186,7 @@ function MediaDisplay({ item, audioManager, videoLoadQueue, onMediaTap }: { item
           muted
           loop
           playsInline
-          style={item.aspectRatio ? { aspectRatio: item.aspectRatio } : undefined}
+          style={aspectRatio ? { aspectRatio } : undefined}
         />
         {!videoPlaying && (
           <div className="video-progress">
@@ -208,9 +211,9 @@ function MediaDisplay({ item, audioManager, videoLoadQueue, onMediaTap }: { item
       <div
         className="media-item media-layered"
         onClick={handleTap}
-        style={{ ...(item.aspectRatio ? { aspectRatio: item.aspectRatio } : {}), cursor: onMediaTap ? 'pointer' : undefined }}
+        style={{ ...(aspectRatio ? { aspectRatio } : {}), cursor: onMediaTap ? 'pointer' : undefined }}
       >
-        <img src={item.src} alt={item.alt} className="media-bg" />
+        <img src={item.src} alt={item.alt} className={`media-bg${item.cssEffect === 'colorCycle' ? ' media-bg--color-cycle' : ''}`} />
         <img src={item.foregroundSrc} alt="" className="media-fg" />
       </div>
     )
@@ -223,7 +226,7 @@ function MediaDisplay({ item, audioManager, videoLoadQueue, onMediaTap }: { item
       alt={item.alt}
       loading="lazy"
       onClick={handleTap}
-      style={{ ...(item.aspectRatio ? { aspectRatio: item.aspectRatio } : {}), cursor: onMediaTap ? 'pointer' : undefined }}
+      style={{ ...(aspectRatio ? { aspectRatio } : {}), cursor: onMediaTap ? 'pointer' : undefined }}
     />
   )
 }

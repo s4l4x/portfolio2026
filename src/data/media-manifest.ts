@@ -7,7 +7,7 @@
 
 export interface ImageManifestEntry {
   type: 'image';
-  lqip: string;
+  lqip?: string;
   width: number;
   height: number;
 }
@@ -41,6 +41,21 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "lqip": "lucyFifer.lqip.webp",
     "width": 719,
     "height": 480
+  },
+  "shower.png": {
+    "type": "image",
+    "width": 1354,
+    "height": 1536
+  },
+  "shower-waterjet.png": {
+    "type": "image",
+    "width": 1024,
+    "height": 768
+  },
+  "reaction-diffusion-wood.jpg": {
+    "type": "image",
+    "width": 5616,
+    "height": 3744
   },
   "ixomoxiMissy.png": {
     "type": "image",
@@ -132,11 +147,221 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "width": 1492,
     "height": 1150
   },
+  "wwdc-app-wall-streaks.png": {
+    "type": "image",
+    "width": 3688,
+    "height": 2208
+  },
+  "screensaver-arabesque-12.png": {
+    "type": "image",
+    "width": 2048,
+    "height": 1536
+  },
+  "screensaver-arabesque-11.png": {
+    "type": "image",
+    "width": 2048,
+    "height": 1536
+  },
+  "screensaver-arabesque-04.png": {
+    "type": "image",
+    "width": 2048,
+    "height": 1536
+  },
   "apolloVibes.png": {
     "type": "image",
     "lqip": "apolloVibes.lqip.webp",
     "width": 848,
     "height": 1842
+  },
+  "yt-grid.png": {
+    "type": "image",
+    "width": 768,
+    "height": 1024
+  },
+  "yt-details.png": {
+    "type": "image",
+    "width": 768,
+    "height": 1024
+  },
+  "weather-42_Heavy_Snow_Day.png": {
+    "type": "image",
+    "width": 640,
+    "height": 1136
+  },
+  "weather-42_Heavy_Snow_Day UI.png": {
+    "type": "image",
+    "width": 640,
+    "height": 1136
+  },
+  "weather-31_Clear_Night.png": {
+    "type": "image",
+    "width": 640,
+    "height": 1136
+  },
+  "weather-31_Clear_Night UI.png": {
+    "type": "image",
+    "width": 640,
+    "height": 1136
+  },
+  "weather-03_Strong_Thunderstorms_Day Lightning.png": {
+    "type": "image",
+    "width": 640,
+    "height": 1136
+  },
+  "weather-03_Strong_Thunderstorms_Day Lightning UI.png": {
+    "type": "image",
+    "width": 640,
+    "height": 1136
+  },
+  "watch-timekeeping_large_solar.png": {
+    "type": "image",
+    "width": 918,
+    "height": 1136
+  },
+  "watch-timekeeping_large.jpg": {
+    "type": "image",
+    "width": 918,
+    "height": 1136
+  },
+  "watch-solar-off-axis.jpg": {
+    "type": "image",
+    "width": 572,
+    "height": 644
+  },
+  "watch-mask-steel.png": {
+    "type": "image",
+    "width": 408,
+    "height": 600
+  },
+  "watch-mask-leather.png": {
+    "type": "image",
+    "width": 408,
+    "height": 600
+  },
+  "watch-face-solar.jpg": {
+    "type": "image",
+    "width": 250,
+    "height": 312
+  },
+  "watch-face-chronograph.jpg": {
+    "type": "image",
+    "width": 250,
+    "height": 312
+  },
+  "watch-chrono-off-axis.jpg": {
+    "type": "image",
+    "width": 572,
+    "height": 644
+  },
+  "time-machine-2.png": {
+    "type": "image",
+    "width": 2048,
+    "height": 1152
+  },
+  "springboard-iOS7-light-up.png": {
+    "type": "image",
+    "width": 640,
+    "height": 1136
+  },
+  "siri-iOS7-what-can-i-help.png": {
+    "type": "image",
+    "width": 640,
+    "height": 1136
+  },
+  "siri-iOS7-wave-zoom.png": {
+    "type": "image",
+    "width": 2048,
+    "height": 1536
+  },
+  "siri-iOS7-snippet.png": {
+    "type": "image",
+    "width": 640,
+    "height": 1136
+  },
+  "siri-iOS5-snippet.png": {
+    "type": "image",
+    "width": 640,
+    "height": 960
+  },
+  "siri-iOS5-snippet-framed.png": {
+    "type": "image",
+    "width": 1536,
+    "height": 2980
+  },
+  "siri-iOS5-mic.png": {
+    "type": "image",
+    "width": 640,
+    "height": 960
+  },
+  "siri-iOS5-mic-framed.png": {
+    "type": "image",
+    "width": 1536,
+    "height": 2980
+  },
+  "siri-iOS5-button-zoom.png": {
+    "type": "image",
+    "width": 1504,
+    "height": 1504
+  },
+  "reminders-iOS7-search.png": {
+    "type": "image",
+    "width": 640,
+    "height": 1136
+  },
+  "reminders-iOS7-list.png": {
+    "type": "image",
+    "width": 640,
+    "height": 1136
+  },
+  "reminders-iOS7-home.png": {
+    "type": "image",
+    "width": 640,
+    "height": 1136
+  },
+  "reminders-iOS5.png": {
+    "type": "image",
+    "width": 770,
+    "height": 1602
+  },
+  "reminders-iOS5-lists.png": {
+    "type": "image",
+    "width": 770,
+    "height": 1602
+  },
+  "mission-control-gut.png": {
+    "type": "image",
+    "width": 2048,
+    "height": 1280
+  },
+  "level.png": {
+    "type": "image",
+    "width": 640,
+    "height": 1136
+  },
+  "level-diff.png": {
+    "type": "image",
+    "width": 640,
+    "height": 1136
+  },
+  "dictation-syrah.png": {
+    "type": "image",
+    "width": 2304,
+    "height": 1440
+  },
+  "dictation-syrah-zoom.png": {
+    "type": "image",
+    "width": 2048,
+    "height": 1536
+  },
+  "compass.png": {
+    "type": "image",
+    "width": 640,
+    "height": 1136
+  },
+  "compass-calibration.png": {
+    "type": "image",
+    "width": 640,
+    "height": 1136
   },
   "periscopeLive360_sizzle.mp4": {
     "type": "video",

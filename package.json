@@ -12,7 +12,7 @@
     "type-check": "tsc --noEmit",
     "generate-lqip": "tsx scripts/generate-lqip.ts",
     "generate-posters": "bash scripts/generate-posters.sh",
-    "generate-manifest": "tsx src/scripts/generate-manifest.ts",
+    "generate-manifest": "tsx scripts/generate-manifest.ts",
     "prebuild": "npm run generate-lqip && npm run generate-posters && npm run generate-manifest"
   },
   "dependencies": {

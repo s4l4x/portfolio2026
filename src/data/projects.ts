@@ -16,8 +16,10 @@ import dionysianFG from "../assets/dionysian/dionysianJournalsFG.png";
 import ixomoxiImage from "../assets/ixomoxi/ixomoxiMissy.png";
 import lucyFiferImage from "../assets/lucy/lucyFifer.png";
 import lucyLogoImage from "../assets/lucy/lucyLogo.png";
-import watchFaceSolar45 from "../assets/apple-hi/collection_11_medium.jpg";
-import watchFaceChrono45 from "../assets/apple-hi/collection_17_medium.jpg";
+import watchFaceSolar45 from "../assets/apple-hi/watch-solar-off-axis.jpg";
+import watchFaceChrono45 from "../assets/apple-hi/watch-chrono-off-axis.jpg";
+import siriIOS5MicFramed from "../assets/apple-hi/siri-iOS5-mic-framed.png";
+import siriIOS5SnippetFramed from "../assets/apple-hi/siri-iOS5-snippet-framed.png";
 
 // Videos
 import gLoveVideoWhiteGlove from "../assets/g-love/g.love-IMG_7225-1080p.mov";
@@ -110,14 +112,12 @@ export const projects: Project[] = [
         type: "video",
         alt: "g.love performance glove",
         posterSrc: gLoveVideoPoster,
-        aspectRatio: 16 / 9,
       },
       {
         src: gLoveVideoWhiteGlove,
         type: "video",
         alt: "g.love performance glove white glove",
         posterSrc: gLoveVideoWhiteGlovePoster,
-        aspectRatio: 608 / 1080,
       },
       {
         src: gLoveImage,
@@ -139,49 +139,41 @@ export const projects: Project[] = [
         src: braidSlidesGenerate,
         alt: "Braid Health AI interface",
         lqipSrc: braidSlidesGenerateLqip,
-        aspectRatio: 1492 / 1150,
       },
       {
         src: braidSlidesAugment,
         alt: "Braid Health AI interface",
         lqipSrc: braidSlidesAugmentLqip,
-        aspectRatio: 1492 / 1150,
       },
       {
         src: braidSlidesCollaboration,
         alt: "Braid Health AI interface",
         lqipSrc: braidSlidesCollaborationLqip,
-        aspectRatio: 1492 / 1150,
       },
       {
         src: braidSlidesKota,
         alt: "Braid Health AI interface",
         lqipSrc: braidSlidesKotaLqip,
-        aspectRatio: 1492 / 1150,
       },
       {
         src: braidSlidesSecurity,
         alt: "Braid Health AI interface",
         lqipSrc: braidSlidesSecurityLqip,
-        aspectRatio: 1492 / 1150,
       },
       {
         src: braidSlidesSharing,
         alt: "Braid Health AI interface",
         lqipSrc: braidSlidesSharingLqip,
-        aspectRatio: 1492 / 1150,
       },
       {
         src: braidSlidesTapping,
         alt: "Braid Health AI interface",
         lqipSrc: braidSlidesTappingLqip,
-        aspectRatio: 1492 / 1150,
       },
       {
         src: braidSlidesWonder,
         alt: "Braid Health AI interface",
         lqipSrc: braidSlidesWonderLqip,
-        aspectRatio: 1492 / 1150,
       },
     ],
   },
@@ -203,7 +195,6 @@ export const projects: Project[] = [
             src: apolloImage,
             alt: "Apollo Neuroscience app",
             lqipSrc: apolloLqip,
-            aspectRatio: 848 / 1842,
           },
         ],
       },
@@ -220,7 +211,6 @@ export const projects: Project[] = [
             foregroundSrc: dionysianFG,
             alt: "The Dionysian Journals album art",
             lqipSrc: dionysianBGLqip,
-            aspectRatio: 1,
           },
         ],
       },
@@ -239,7 +229,6 @@ export const projects: Project[] = [
         type: "video",
         alt: "Periscope Live 360 broadcast",
         posterSrc: periscopeSizzlePoster,
-        aspectRatio: 16 / 9,
       },
     ],
   },
@@ -256,21 +245,18 @@ export const projects: Project[] = [
         type: "video",
         alt: "Twitter Building video",
         posterSrc: twitterBuildingPoster,
-        aspectRatio: 608 / 1080,
       },
       {
         src: twitterMarvelVideo,
         type: "video",
         alt: "Twitter Marvel video",
         posterSrc: twitterMarvelPoster,
-        aspectRatio: 608 / 1080,
       },
       {
         src: twitterViewfinderVideo,
         type: "video",
         alt: "Twitter Viewfinder video",
         posterSrc: twitterViewfinderPoster,
-        aspectRatio: 750 / 1334,
       },
     ],
   },
@@ -283,12 +269,18 @@ export const projects: Project[] = [
       {
         src: watchFaceSolar45,
         alt: "Apple Human Interface",
-        aspectRatio: 572 / 644,
       },
       {
         src: watchFaceChrono45,
         alt: "Apple Human Interface",
-        aspectRatio: 572 / 644,
+      },
+      {
+        src: siriIOS5MicFramed,
+        alt: "Siri iOS 5 microphone interface",
+      },
+      {
+        src: siriIOS5SnippetFramed,
+        alt: "Siri iOS 5 calendar snippet",
       },
     ],
   },
@@ -303,7 +295,6 @@ export const projects: Project[] = [
         src: ixomoxiImage,
         alt: "IXOMOXI visual",
         lqipSrc: ixomoxiLqip,
-        aspectRatio: 960 / 540,
       },
     ],
   },
@@ -317,10 +308,9 @@ export const projects: Project[] = [
       {
         src: lucyFiferImage,
         foregroundSrc: lucyLogoImage,
-        shader: "colorCycle",
+        cssEffect: "colorCycle",
         alt: "Lucy",
         lqipSrc: lucyFiferLqip,
-        aspectRatio: 719 / 480,
       },
     ],
   },
