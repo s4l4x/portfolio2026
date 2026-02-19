@@ -27,7 +27,7 @@ React 19 + TypeScript 5.9 + Vite 7. Pure CSS (no Tailwind, no CSS-in-JS). No sta
 
 ## Architecture
 
-**App.tsx is the main file (~570 lines).** It contains the component hierarchy inline: header, project sections, media display, and lightbox. There is no routing — it's a single scrollable page.
+**App.tsx is the main file (~640 lines).** It contains the component hierarchy inline: header, project sections, media display, and lightbox. There is no routing — it's a single scrollable page.
 
 ### Data Flow
 
@@ -36,9 +36,17 @@ React 19 + TypeScript 5.9 + Vite 7. Pure CSS (no Tailwind, no CSS-in-JS). No sta
 3. **`src/types/project.ts`** — `Project` interface. Composes `MediaItem` and supports nested `subProjects`.
 4. **`src/data/media-manifest.ts`** — Auto-generated file mapping asset paths to dimensions, LQIP paths, and poster paths. Do not edit manually.
 
+### Audio Model
+
+Two independent mute scopes, both managed in `App`:
+
+- **Grid:** `unmutedVideoId` state — at most one video unmuted at a time. Unmuting one auto-mutes the previous. Each video's mute button toggles via `onToggleGridMute`. Grid mute state is stored on the element as `dataset.gridMuted` so it can be restored after lightbox close.
+- **Lightbox:** `lightboxMuted` state — single toggle shared across all lightbox opens. Defaults to unmuted. Opening an unmuted grid video forces lightbox to unmuted; opening a muted one inherits existing lightbox state.
+
+`useVideoAudioManager` still exists in `src/hooks/` but is no longer imported or used.
+
 ### Key Hooks
 
-- **`useVideoAudioManager`** — IntersectionObserver-based system that unmutes the most-visible video and mutes others. Uses hysteresis to prevent thrashing.
 - **`useVideoLoadQueue`** — Loads videos one at a time, prioritizing closest-to-viewport. Supports priority override for lightbox.
 
 ### Media Pipeline
@@ -51,7 +59,7 @@ Assets live in `src/assets/{project-name}/`. Three build scripts generate suppor
 
 ### Lightbox
 
-Animates the actual grid element to fullscreen (not a clone). Has three phases: entering → open → exiting. iOS devices use native `webkitEnterFullscreen()` for videos.
+Animates the actual grid element to fullscreen (not a clone). Has three phases: entering → open → exiting. iOS devices use native `webkitEnterFullscreen()` for videos. Desktop lightbox has a controls layer (close button top-right, mute button bottom-right for videos with audio) that fades on 3s inactivity and reappears on mouse/touch activity.
 
 ### ShaderCanvas
 
