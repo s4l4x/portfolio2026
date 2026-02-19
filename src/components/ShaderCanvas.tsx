@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react'
 import vertSource from '../shaders/colorCycle.vert?raw'
 import fragSource from '../shaders/colorCycle.frag?raw'
 
+const SHADER_EPOCH = performance.now()
+
 function initGL(canvas: HTMLCanvasElement, img: HTMLImageElement) {
   const gl = canvas.getContext('webgl', { premultipliedAlpha: false })
   if (!gl) return null
@@ -64,10 +66,8 @@ export function ShaderCanvas({ imageSrc, className }: { imageSrc: string; classN
       const result = initGL(canvas, img)
       if (!result) return
       const { gl, uTime } = result
-      const start = performance.now()
-
       const render = () => {
-        gl.uniform1f(uTime, (performance.now() - start) / 1000)
+        gl.uniform1f(uTime, (performance.now() - SHADER_EPOCH) / 1000)
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
         animId = requestAnimationFrame(render)
       }
