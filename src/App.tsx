@@ -326,9 +326,8 @@ function MediaLightbox({ media, lightboxMuted, onToggleMute, onExitComplete }: {
   )
 }
 
-function MediaDisplay({ item, videoLoadQueue, onMediaTap }: { item: MediaItem; videoLoadQueue: VideoLoadQueue; onMediaTap?: (item: MediaItem, videoEl: HTMLVideoElement | null, sourceElement: HTMLElement) => void }) {
+function MediaDisplay({ item, videoLoadQueue, unmutedVideoId, onToggleGridMute, onMediaTap }: { item: MediaItem; videoLoadQueue: VideoLoadQueue; unmutedVideoId: string | null; onToggleGridMute: (id: string, videoEl: HTMLVideoElement) => void; onMediaTap?: (item: MediaItem, videoEl: HTMLVideoElement | null, sourceElement: HTMLElement) => void }) {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [muted, setMuted] = useState(true)
   const [videoProgress, setVideoProgress] = useState(0)
   const [videoPlaying, setVideoPlaying] = useState(false)
 
@@ -373,6 +372,17 @@ function MediaDisplay({ item, videoLoadQueue, onMediaTap }: { item: MediaItem; v
     }
   }, [item.type])
 
+  const isUnmuted = hasAudio && unmutedVideoId === item.src
+
+  // Sync muted state from parent
+  useEffect(() => {
+    const el = videoRef.current
+    if (!el || !hasAudio) return
+    const shouldMute = !isUnmuted
+    if (el.muted !== shouldMute) el.muted = shouldMute
+    el.dataset.gridMuted = shouldMute ? '1' : '0'
+  }, [hasAudio, isUnmuted])
+
   const handleTap = useCallback((e: React.MouseEvent<HTMLElement>) => {
     if (onMediaTap) onMediaTap(item, videoRef.current, e.currentTarget)
   }, [onMediaTap, item])
@@ -381,13 +391,10 @@ function MediaDisplay({ item, videoLoadQueue, onMediaTap }: { item: MediaItem; v
     e.stopPropagation()
     const el = videoRef.current
     if (!el) return
-    const next = !muted
-    el.muted = next
-    el.dataset.gridMuted = next ? '1' : '0'
     // Chrome requires play() in user gesture when unmuting
-    if (!next) el.play().catch(() => {})
-    setMuted(next)
-  }, [muted])
+    if (!isUnmuted) el.play().catch(() => {})
+    onToggleGridMute(item.src, el)
+  }, [isUnmuted, item.src, onToggleGridMute])
 
   if (item.type === 'video') {
     return (
@@ -410,9 +417,9 @@ function MediaDisplay({ item, videoLoadQueue, onMediaTap }: { item: MediaItem; v
           <button
             className="video-sound-btn"
             onClick={toggleMute}
-            aria-label={muted ? 'Unmute' : 'Mute'}
+            aria-label={isUnmuted ? 'Mute' : 'Unmute'}
           >
-            {muted ? <SpeakerMutedIcon /> : <SpeakerIcon />}
+            {isUnmuted ? <SpeakerIcon /> : <SpeakerMutedIcon />}
           </button>
         )}
       </div>
@@ -448,7 +455,7 @@ function MediaDisplay({ item, videoLoadQueue, onMediaTap }: { item: MediaItem; v
   )
 }
 
-function ProjectSection({ project, nested, videoLoadQueue, onMediaTap }: { project: Project; nested?: boolean; videoLoadQueue: VideoLoadQueue; onMediaTap?: (item: MediaItem, videoEl: HTMLVideoElement | null, sourceElement: HTMLElement) => void }) {
+function ProjectSection({ project, nested, videoLoadQueue, unmutedVideoId, onToggleGridMute, onMediaTap }: { project: Project; nested?: boolean; videoLoadQueue: VideoLoadQueue; unmutedVideoId: string | null; onToggleGridMute: (id: string, videoEl: HTMLVideoElement) => void; onMediaTap?: (item: MediaItem, videoEl: HTMLVideoElement | null, sourceElement: HTMLElement) => void }) {
   const dateRange = formatDateRange(project.startDate, project.endDate)
   const showDate = project.showDate !== false
   const hasContent = project.description || project.media.length > 0
@@ -477,7 +484,7 @@ function ProjectSection({ project, nested, videoLoadQueue, onMediaTap }: { proje
             <div className="project-media">
               <div className="media-gutter" aria-hidden="true" />
               {project.media.map((item, i) => (
-                <MediaDisplay key={i} item={item} videoLoadQueue={videoLoadQueue} onMediaTap={onMediaTap} />
+                <MediaDisplay key={i} item={item} videoLoadQueue={videoLoadQueue} unmutedVideoId={unmutedVideoId} onToggleGridMute={onToggleGridMute} onMediaTap={onMediaTap} />
               ))}
             </div>
           )}
@@ -485,7 +492,7 @@ function ProjectSection({ project, nested, videoLoadQueue, onMediaTap }: { proje
       )}
 
       {project.subProjects?.map((sub, i) => (
-        <ProjectSection key={i} project={sub} nested videoLoadQueue={videoLoadQueue} onMediaTap={onMediaTap} />
+        <ProjectSection key={i} project={sub} nested videoLoadQueue={videoLoadQueue} unmutedVideoId={unmutedVideoId} onToggleGridMute={onToggleGridMute} onMediaTap={onMediaTap} />
       ))}
     </section>
   )
@@ -496,6 +503,17 @@ function App() {
   const [expandedMedia, setExpandedMedia] = useState<ExpandedMedia | null>(null)
   const expandedMediaRef = useRef<ExpandedMedia | null>(null)
   const [lightboxMuted, setLightboxMuted] = useState(false)
+  const [unmutedVideoId, setUnmutedVideoId] = useState<string | null>(null)
+
+  const handleToggleGridMute = useCallback((id: string, videoEl: HTMLVideoElement) => {
+    setUnmutedVideoId(prev => {
+      const next = prev === id ? null : id
+      // Sync immediately within the user gesture (Chrome requires this)
+      videoEl.muted = next !== id
+      videoEl.dataset.gridMuted = next === id ? '0' : '1'
+      return next
+    })
+  }, [])
 
   const handleMediaTap = useCallback((item: MediaItem, videoEl: HTMLVideoElement | null, sourceElement: HTMLElement) => {
     // Guard against opening while exiting
@@ -610,6 +628,8 @@ function App() {
             key={i}
             project={project}
             videoLoadQueue={videoLoadQueue}
+            unmutedVideoId={unmutedVideoId}
+            onToggleGridMute={handleToggleGridMute}
             onMediaTap={handleMediaTap}
           />
         ))}
