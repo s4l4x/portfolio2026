@@ -243,11 +243,9 @@
   transition: opacity 300ms ease-in, transform 300ms ease-in;
 }
 
-/* Ghost effect on source element */
-.media-item--ghost,
-.video-wrapper--ghost {
-  opacity: 0.3;
-  transition: opacity 350ms ease-out;
+/* Black placeholder left behind when image pops to lightbox */
+.media-item--ghost {
+  filter: brightness(0);
 }
 
 /* Black placeholder left behind when video pops to lightbox */
