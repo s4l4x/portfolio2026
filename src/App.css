@@ -264,6 +264,12 @@
   transition: opacity 350ms ease-out;
 }
 
+/* Black placeholder left behind when video pops to lightbox */
+.video-wrapper--lightbox {
+  background: #000;
+  border-radius: 6px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .portfolio {
