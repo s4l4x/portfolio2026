@@ -495,7 +495,7 @@ function App() {
   const videoLoadQueue = useVideoLoadQueue()
   const [expandedMedia, setExpandedMedia] = useState<ExpandedMedia | null>(null)
   const expandedMediaRef = useRef<ExpandedMedia | null>(null)
-  const [lightboxMuted, setLightboxMuted] = useState(true)
+  const [lightboxMuted, setLightboxMuted] = useState(false)
 
   const handleMediaTap = useCallback((item: MediaItem, videoEl: HTMLVideoElement | null, sourceElement: HTMLElement) => {
     // Guard against opening while exiting
