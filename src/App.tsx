@@ -542,7 +542,7 @@ function App() {
     <div className="portfolio">
       <header className="header">
         <div className="header-top">
-          <span className="header-site">portfolio.com</span>
+          <span className="header-site">puterlab.com</span>
         </div>
         <div className="header-intro">
           <div>
@@ -568,7 +568,10 @@ function App() {
       </main>
 
       {expandedMedia && (
-        <MediaLightbox media={expandedMedia} onExitComplete={handleExitComplete} />
+        <MediaLightbox
+          media={expandedMedia}
+          onExitComplete={handleExitComplete}
+        />
       )}
     </div>
   );
