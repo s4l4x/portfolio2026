@@ -6,7 +6,8 @@ import { useVideoAudioManager } from './hooks/useVideoAudioManager'
 import type { AudioManager } from './hooks/useVideoAudioManager'
 import { useVideoLoadQueue } from './hooks/useVideoLoadQueue'
 import type { VideoLoadQueue } from './hooks/useVideoLoadQueue'
-import type { MediaItem, Project } from './types/project'
+import type { MediaItem } from './types/media'
+import type { Project } from './types/project'
 import { ShaderCanvas } from './components/ShaderCanvas'
 
 function formatDateRange(startDate?: string, endDate?: string) {
