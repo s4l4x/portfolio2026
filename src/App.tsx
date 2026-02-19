@@ -255,8 +255,9 @@ function MediaLightbox({ media, onExitComplete }: { media: ExpandedMedia; onExit
     if (item.foregroundSrc) {
       return (
         <div
+          className="media-layered"
           onClick={(e) => e.stopPropagation()}
-          style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}
+          style={{ width: '100%', height: '100%' }}
         >
           {item.shader ? (
             <ShaderCanvas imageSrc={item.src} className="media-bg" />
