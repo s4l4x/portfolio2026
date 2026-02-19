@@ -140,8 +140,8 @@ function MediaLightbox({ media, onExitComplete }: { media: ExpandedMedia; onExit
     }
 
     el.style.transform = inverseTransform
-    let raf1: number, raf2: number
-    raf1 = requestAnimationFrame(() => {
+    let raf2: number
+    const raf1 = requestAnimationFrame(() => {
       raf2 = requestAnimationFrame(() => {
         setBackdropVisible(true)
         el.classList.add('lightbox-clone--animate')
@@ -156,10 +156,10 @@ function MediaLightbox({ media, onExitComplete }: { media: ExpandedMedia; onExit
   useEffect(() => {
     const el = getAnimatedEl()
     if (!el || phase !== 'entering') return
-    const onEnd = (e: TransitionEvent) => {
+    const onEnd = ((e: TransitionEvent) => {
       if (e.target !== el || e.propertyName !== 'transform') return
       setPhase('open')
-    }
+    }) as EventListener
     el.addEventListener('transitionend', onEnd)
     return () => el.removeEventListener('transitionend', onEnd)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -199,11 +199,11 @@ function MediaLightbox({ media, onExitComplete }: { media: ExpandedMedia; onExit
       el.classList.add('lightbox-clone--fade-exit')
     }
 
-    const onEnd = (e: TransitionEvent) => {
+    const onEnd = ((e: TransitionEvent) => {
       if (e.target !== el) return
       el.removeEventListener('transitionend', onEnd)
       onExitComplete()
-    }
+    }) as EventListener
     el.addEventListener('transitionend', onEnd)
     return () => el.removeEventListener('transitionend', onEnd)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -455,6 +455,7 @@ function App() {
   const audioManager = useVideoAudioManager()
   const videoLoadQueue = useVideoLoadQueue()
   const [expandedMedia, setExpandedMedia] = useState<ExpandedMedia | null>(null)
+  const expandedMediaRef = useRef<ExpandedMedia | null>(null)
 
   const handleMediaTap = useCallback((item: MediaItem, videoEl: HTMLVideoElement | null, sourceElement: HTMLElement) => {
     // Guard against opening while exiting
@@ -504,12 +505,15 @@ function App() {
 
     // Desktop (or image on any device): open lightbox
     if (isVideo) audioManager.releaseFocus()
-    setExpandedMedia({ item, isVideo, sourceRect, sourceElement, videoEl: isVideo ? (videoEl ?? undefined) : undefined })
+    const media = { item, isVideo, sourceRect, sourceElement, videoEl: isVideo ? (videoEl ?? undefined) : undefined }
+    expandedMediaRef.current = media
+    setExpandedMedia(media)
   }, [audioManager, videoLoadQueue, expandedMedia])
 
   const handleExitComplete = useCallback(() => {
-    if (!expandedMedia) return
-    const { sourceElement, isVideo, videoEl } = expandedMedia
+    const current = expandedMediaRef.current
+    if (!current) return
+    const { sourceElement, isVideo, videoEl } = current
 
     if (isVideo && videoEl) {
       // Restore video to normal grid flow
@@ -530,8 +534,9 @@ function App() {
       sourceElement.classList.remove('media-item--ghost')
     }
 
+    expandedMediaRef.current = null
     setExpandedMedia(null)
-  }, [expandedMedia])
+  }, [])
 
   return (
     <div className="portfolio">
