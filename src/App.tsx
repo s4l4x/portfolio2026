@@ -2,8 +2,6 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import './App.css'
 import { projects } from './data/projects'
 import { getManifestEntry } from './data/media-manifest'
-import { useVideoAudioManager } from './hooks/useVideoAudioManager'
-import type { AudioManager } from './hooks/useVideoAudioManager'
 import { useVideoLoadQueue } from './hooks/useVideoLoadQueue'
 import type { VideoLoadQueue } from './hooks/useVideoLoadQueue'
 import type { MediaItem } from './types/media'
@@ -34,6 +32,14 @@ function SpeakerMutedIcon() {
   return (
     <svg width="12" height="12" viewBox="0 0 48 48" fill="currentColor">
       <path clipRule="evenodd" fillRule="evenodd" d="M1.5 13.3c-.8 0-1.5.7-1.5 1.5v18.4c0 .8.7 1.5 1.5 1.5h8.7l12.9 12.9c.9.9 2.5.3 2.5-1v-9.8c0-.4-.2-.8-.4-1.1l-22-22c-.3-.3-.7-.4-1.1-.4h-.6zm46.8 31.4-5.5-5.5C44.9 36.6 48 31.4 48 24c0-11.4-7.2-17.4-7.2-17.4-.6-.6-1.6-.6-2.2 0L37.2 8c-.6.6-.6 1.6 0 2.2 0 0 5.7 5 5.7 13.8 0 5.4-2.1 9.3-3.8 11.6L35.5 32c1.1-1.7 2.3-4.4 2.3-8 0-6.8-4.1-10.3-4.1-10.3-.6-.6-1.6-.6-2.2 0l-1.4 1.4c-.6.6-.6 1.6 0 2.2 0 0 2.6 2 2.6 6.7 0 1.8-.4 3.2-.9 4.3L25.5 22V1.4c0-1.3-1.6-1.9-2.5-1L13.5 10 3.3-.3c-.6-.6-1.5-.6-2.1 0L-.2 1.1c-.6.6-.6 1.5 0 2.1L4 7.6l26.8 26.8 13.9 13.9c.6.6 1.5.6 2.1 0l1.4-1.4c.7-.6.7-1.6.1-2.2z" />
+    </svg>
+  )
+}
+
+function CloseIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
     </svg>
   )
 }
@@ -88,14 +94,17 @@ function computeTargetRect(aspectRatio: number): { top: number; left: number; wi
 
 type LightboxPhase = 'entering' | 'open' | 'exiting'
 
-function MediaLightbox({ media, onExitComplete }: { media: ExpandedMedia; onExitComplete: () => void }) {
+function MediaLightbox({ media, lightboxMuted, onToggleMute, onExitComplete }: { media: ExpandedMedia; lightboxMuted: boolean; onToggleMute: () => void; onExitComplete: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [phase, setPhase] = useState<LightboxPhase>('entering')
   const [backdropVisible, setBackdropVisible] = useState(false)
   const closingRef = useRef(false)
+  const [controlsVisible, setControlsVisible] = useState(true)
+  const controlsTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   const { item, sourceRect, sourceElement } = media
   const manifest = getManifestEntry(item.src)
+  const hasAudio = media.videoEl && manifest?.type === 'video' && manifest.hasAudio === true
 
   // Compute aspect ratio — fall back to source element dimensions
   const aspectRatio = manifest?.width && manifest?.height
@@ -165,12 +174,11 @@ function MediaLightbox({ media, onExitComplete }: { media: ExpandedMedia; onExit
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase])
 
-  // When animation lands: unmute
+  // Sync muted state to video element whenever lightboxMuted changes
   useEffect(() => {
-    if (phase !== 'open' || !media.videoEl) return
-    media.videoEl.muted = false
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase])
+    if (!media.videoEl || !hasAudio) return
+    media.videoEl.muted = lightboxMuted
+  }, [media.videoEl, hasAudio, lightboxMuted])
 
   // Exit animation
   useEffect(() => {
@@ -212,13 +220,8 @@ function MediaLightbox({ media, onExitComplete }: { media: ExpandedMedia; onExit
   const handleClose = useCallback(() => {
     if (closingRef.current) return
     closingRef.current = true
-
-    if (media.videoEl) {
-      media.videoEl.muted = true
-    }
-
     setPhase('exiting')
-  }, [media.videoEl])
+  }, [])
 
   // Click on the video element itself to close
   useEffect(() => {
@@ -237,6 +240,33 @@ function MediaLightbox({ media, onExitComplete }: { media: ExpandedMedia; onExit
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
   }, [handleClose])
+
+  // Controls fade timer — start on open, reset on any mouse/touch activity
+  const resetControlsTimer = useCallback(() => {
+    setControlsVisible(true)
+    clearTimeout(controlsTimerRef.current)
+    controlsTimerRef.current = setTimeout(() => setControlsVisible(false), 3000)
+  }, [])
+
+  useEffect(() => {
+    if (phase !== 'open') return
+    resetControlsTimer()
+
+    const onActivity = () => resetControlsTimer()
+    window.addEventListener('mousemove', onActivity)
+    window.addEventListener('touchstart', onActivity)
+    return () => {
+      clearTimeout(controlsTimerRef.current)
+      window.removeEventListener('mousemove', onActivity)
+      window.removeEventListener('touchstart', onActivity)
+    }
+  }, [phase, resetControlsTimer])
+
+  const toggleLightboxMute = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    onToggleMute()
+    resetControlsTimer()
+  }, [onToggleMute, resetControlsTimer])
 
   const snapshotSrc = media.snapshotSrc || item.posterSrc || item.src
   const backdropClass = `lightbox-backdrop${phase === 'exiting' ? ' lightbox-backdrop--exit' : backdropVisible ? ' lightbox-backdrop--visible' : ''}`
@@ -280,31 +310,31 @@ function MediaLightbox({ media, onExitComplete }: { media: ExpandedMedia; onExit
           {renderImageContent()}
         </div>
       )}
+      {phase === 'open' && (
+        <div className={`lightbox-controls${controlsVisible ? '' : ' lightbox-controls--hidden'}`}>
+          <button className="lightbox-close-btn" onClick={(e) => { e.stopPropagation(); handleClose() }} aria-label="Close">
+            <CloseIcon />
+          </button>
+          {hasAudio && (
+            <button className="lightbox-sound-btn" onClick={toggleLightboxMute} aria-label={lightboxMuted ? 'Unmute' : 'Mute'}>
+              {lightboxMuted ? <SpeakerMutedIcon /> : <SpeakerIcon />}
+            </button>
+          )}
+        </div>
+      )}
     </>
   )
 }
 
-function MediaDisplay({ item, audioManager, videoLoadQueue, onMediaTap }: { item: MediaItem; audioManager: AudioManager; videoLoadQueue: VideoLoadQueue; onMediaTap?: (item: MediaItem, videoEl: HTMLVideoElement | null, sourceElement: HTMLElement) => void }) {
+function MediaDisplay({ item, videoLoadQueue, onMediaTap }: { item: MediaItem; videoLoadQueue: VideoLoadQueue; onMediaTap?: (item: MediaItem, videoEl: HTMLVideoElement | null, sourceElement: HTMLElement) => void }) {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const idRef = useRef<string>('')
+  const [muted, setMuted] = useState(true)
   const [videoProgress, setVideoProgress] = useState(0)
   const [videoPlaying, setVideoPlaying] = useState(false)
 
   const manifest = getManifestEntry(item.src)
   const hasAudio = manifest?.type === 'video' && manifest.hasAudio === true
   const aspectRatio = manifest?.width && manifest?.height ? manifest.width / manifest.height : undefined
-
-  // Register with audio manager (only for videos with audio)
-  const { register: audioRegister, unregister: audioUnregister } = audioManager
-  useEffect(() => {
-    if (!hasAudio || !videoRef.current) return
-    const id = item.src
-    idRef.current = id
-    audioRegister(id, videoRef.current)
-    return () => {
-      audioUnregister(id)
-    }
-  }, [hasAudio, item.src, audioRegister, audioUnregister])
 
   // Register with load queue (all videos)
   const { register: queueRegister, unregister: queueUnregister } = videoLoadQueue
@@ -347,9 +377,19 @@ function MediaDisplay({ item, audioManager, videoLoadQueue, onMediaTap }: { item
     if (onMediaTap) onMediaTap(item, videoRef.current, e.currentTarget)
   }, [onMediaTap, item])
 
-  if (item.type === 'video') {
-    const isUnmuted = hasAudio && audioManager.soundEnabled && audioManager.focusedVideoId === item.src
+  const toggleMute = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    const el = videoRef.current
+    if (!el) return
+    const next = !muted
+    el.muted = next
+    el.dataset.gridMuted = next ? '1' : '0'
+    // Chrome requires play() in user gesture when unmuting
+    if (!next) el.play().catch(() => {})
+    setMuted(next)
+  }, [muted])
 
+  if (item.type === 'video') {
     return (
       <div className="video-wrapper" onClick={handleTap} style={{ cursor: onMediaTap ? 'pointer' : undefined }}>
         <video
@@ -368,11 +408,11 @@ function MediaDisplay({ item, audioManager, videoLoadQueue, onMediaTap }: { item
         )}
         {hasAudio && (
           <button
-            className={`video-sound-btn${isUnmuted ? ' video-sound-btn--unmuted' : ''}`}
-            onClick={(e) => { e.stopPropagation(); audioManager.toggleSound() }}
-            aria-label={isUnmuted ? 'Mute' : 'Unmute'}
+            className="video-sound-btn"
+            onClick={toggleMute}
+            aria-label={muted ? 'Unmute' : 'Mute'}
           >
-            {isUnmuted ? <SpeakerIcon /> : <SpeakerMutedIcon />}
+            {muted ? <SpeakerMutedIcon /> : <SpeakerIcon />}
           </button>
         )}
       </div>
@@ -408,7 +448,7 @@ function MediaDisplay({ item, audioManager, videoLoadQueue, onMediaTap }: { item
   )
 }
 
-function ProjectSection({ project, nested, audioManager, videoLoadQueue, onMediaTap }: { project: Project; nested?: boolean; audioManager: AudioManager; videoLoadQueue: VideoLoadQueue; onMediaTap?: (item: MediaItem, videoEl: HTMLVideoElement | null, sourceElement: HTMLElement) => void }) {
+function ProjectSection({ project, nested, videoLoadQueue, onMediaTap }: { project: Project; nested?: boolean; videoLoadQueue: VideoLoadQueue; onMediaTap?: (item: MediaItem, videoEl: HTMLVideoElement | null, sourceElement: HTMLElement) => void }) {
   const dateRange = formatDateRange(project.startDate, project.endDate)
   const showDate = project.showDate !== false
   const hasContent = project.description || project.media.length > 0
@@ -437,7 +477,7 @@ function ProjectSection({ project, nested, audioManager, videoLoadQueue, onMedia
             <div className="project-media">
               <div className="media-gutter" aria-hidden="true" />
               {project.media.map((item, i) => (
-                <MediaDisplay key={i} item={item} audioManager={audioManager} videoLoadQueue={videoLoadQueue} onMediaTap={onMediaTap} />
+                <MediaDisplay key={i} item={item} videoLoadQueue={videoLoadQueue} onMediaTap={onMediaTap} />
               ))}
             </div>
           )}
@@ -445,17 +485,17 @@ function ProjectSection({ project, nested, audioManager, videoLoadQueue, onMedia
       )}
 
       {project.subProjects?.map((sub, i) => (
-        <ProjectSection key={i} project={sub} nested audioManager={audioManager} videoLoadQueue={videoLoadQueue} onMediaTap={onMediaTap} />
+        <ProjectSection key={i} project={sub} nested videoLoadQueue={videoLoadQueue} onMediaTap={onMediaTap} />
       ))}
     </section>
   )
 }
 
 function App() {
-  const audioManager = useVideoAudioManager()
   const videoLoadQueue = useVideoLoadQueue()
   const [expandedMedia, setExpandedMedia] = useState<ExpandedMedia | null>(null)
   const expandedMediaRef = useRef<ExpandedMedia | null>(null)
+  const [lightboxMuted, setLightboxMuted] = useState(true)
 
   const handleMediaTap = useCallback((item: MediaItem, videoEl: HTMLVideoElement | null, sourceElement: HTMLElement) => {
     // Guard against opening while exiting
@@ -503,12 +543,20 @@ function App() {
     }
     sourceElement.classList.add(isVideo ? 'video-wrapper--lightbox' : 'media-item--ghost')
 
+    // If this video was playing unmuted in the grid, carry that into lightbox
+    if (isVideo && videoEl && !videoEl.muted) {
+      setLightboxMuted(false)
+    }
+
     // Desktop (or image on any device): open lightbox
-    if (isVideo) audioManager.releaseFocus()
     const media = { item, isVideo, sourceRect, sourceElement, videoEl: isVideo ? (videoEl ?? undefined) : undefined }
     expandedMediaRef.current = media
     setExpandedMedia(media)
-  }, [audioManager, videoLoadQueue, expandedMedia])
+  }, [videoLoadQueue, expandedMedia])
+
+  const handleToggleLightboxMute = useCallback(() => {
+    setLightboxMuted(prev => !prev)
+  }, [])
 
   const handleExitComplete = useCallback(() => {
     const current = expandedMediaRef.current
@@ -527,7 +575,8 @@ function App() {
       videoEl.style.willChange = ''
       videoEl.style.transform = ''
       videoEl.classList.remove('lightbox-clone--animate', 'lightbox-clone--exit', 'lightbox-clone--fade-exit')
-      videoEl.muted = true
+      // Restore grid mute state (stored as data attribute)
+      videoEl.muted = videoEl.dataset.gridMuted !== '0'
       sourceElement.style.width = ''
       sourceElement.classList.remove('video-wrapper--lightbox')
     } else {
@@ -560,7 +609,6 @@ function App() {
           <ProjectSection
             key={i}
             project={project}
-            audioManager={audioManager}
             videoLoadQueue={videoLoadQueue}
             onMediaTap={handleMediaTap}
           />
@@ -570,6 +618,8 @@ function App() {
       {expandedMedia && (
         <MediaLightbox
           media={expandedMedia}
+          lightboxMuted={lightboxMuted}
+          onToggleMute={handleToggleLightboxMute}
           onExitComplete={handleExitComplete}
         />
       )}
