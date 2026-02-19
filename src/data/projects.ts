@@ -196,26 +196,30 @@ export const projects: Project[] = [
     ],
   },
   {
-    title: "Viewfinder",
-    company: "Twitter",
+    title: "Twitter",
     role: "Director of AR/VR",
     description:
       "Viewfinder augments your view of the world with Twitter's live content. Open Twitter, swipe down, look around. Viwefinder recognizes hashtags and mentions and brings them to life. Viewfinder also augments broadcasts like the Oscars or the Olympics by knowing what's on. Hackweek 2017 winner.",
     startDate: "2017-10",
     media: [
       {
+        title: "Viewfinder",
         src: twitterBuildingVideo,
         type: "video",
         alt: "Twitter Building video",
         posterSrc: twitterBuildingPoster,
       },
       {
+        title: "Viewfinder",
         src: twitterMarvelVideo,
         type: "video",
         alt: "Twitter Marvel video",
         posterSrc: twitterMarvelPoster,
       },
       {
+        title: "Viewfinder",
+        description:
+          "Viewfinder augments your view of the world with Twitter's live content. Open Twitter, swipe down, look around. Viwefinder recognizes hashtags and mentions and brings them to life. Viewfinder also augments broadcasts like the Oscars or the Olympics by knowing what's on. Live demo, hackweek 2017 winner!",
         src: twitterViewfinderVideo,
         type: "video",
         alt: "Twitter Viewfinder video",
