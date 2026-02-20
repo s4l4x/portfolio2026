@@ -495,6 +495,28 @@ function ProjectSection({ project, nested, videoLoadQueue, unmutedVideoId, onTog
   const dateRange = formatDateRange(project.startDate, project.endDate)
   const showDate = project.showDate !== false
   const hasContent = project.description || project.media.length > 0
+  const mediaRowRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = mediaRowRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+        observer.disconnect()
+        const items = Array.from(el.children).filter(
+          child => !child.classList.contains('media-gutter')
+        ) as HTMLElement[]
+        items.forEach((item, i) => {
+          item.style.animationDelay = `${i * 80}ms`
+        })
+        el.classList.add('project-media--revealed')
+      },
+      { threshold: 0 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <section className={`project ${nested ? 'project--nested' : ''}`}>
@@ -517,7 +539,7 @@ function ProjectSection({ project, nested, videoLoadQueue, unmutedVideoId, onTog
           </div>
 
           {project.media.length > 0 && (
-            <div className="project-media">
+            <div className="project-media" ref={mediaRowRef}>
               <div className="media-gutter" aria-hidden="true" />
               {project.media.map((item, i) => (
                 <MediaDisplay key={i} item={item} videoLoadQueue={videoLoadQueue} unmutedVideoId={unmutedVideoId} onToggleGridMute={onToggleGridMute} onMediaTap={onMediaTap} />

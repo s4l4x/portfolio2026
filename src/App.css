@@ -334,6 +334,35 @@
   justify-content: center;
 }
 
+/* Media entrance animation */
+@keyframes media-enter {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.project-media > *:not(.media-gutter) {
+  opacity: 0;
+}
+
+.project-media--revealed > *:not(.media-gutter) {
+  animation: media-enter 0.5s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-media > *:not(.media-gutter) {
+    opacity: 1;
+  }
+  .project-media--revealed > *:not(.media-gutter) {
+    animation: none;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .portfolio {
