@@ -1,0 +1,87 @@
+name: PR Preview (GitHub Pages)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: pr-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-preview:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build with PR-specific base path
+        run: BASE_PATH=/${{ github.event.repository.name }}/pr-${{ github.event.pull_request.number }}/ npm run build
+
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Copy build output into PR folder
+        run: |
+          PR_DIR="pr-${{ github.event.pull_request.number }}"
+          rm -rf "gh-pages/$PR_DIR"
+          mkdir -p "gh-pages/$PR_DIR"
+          cp -R dist/* "gh-pages/$PR_DIR/"
+
+      - name: Commit & push preview
+        run: |
+          cd gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "PR preview for #${{ github.event.pull_request.number }}" || echo "No changes to commit"
+          git push
+
+      - name: Comment preview URL on PR
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **PR Preview is ready:**
+            https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ github.event.pull_request.number }}/
+
+  cleanup-preview:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
+      - name: Remove PR preview folder
+        run: |
+          PR_DIR="pr-${{ github.event.pull_request.number }}"
+          rm -rf "$PR_DIR"
+
+      - name: Commit & push cleanup
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Remove PR preview for #${{ github.event.pull_request.number }}" || echo "Nothing to remove"
+          git push
