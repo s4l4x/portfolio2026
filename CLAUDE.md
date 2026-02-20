@@ -43,8 +43,6 @@ Two independent mute scopes, both managed in `App`:
 - **Grid:** `unmutedVideoId` state — at most one video unmuted at a time. Unmuting one auto-mutes the previous. Each video's mute button toggles via `onToggleGridMute`. Grid mute state is stored on the element as `dataset.gridMuted` so it can be restored after lightbox close.
 - **Lightbox:** `lightboxMuted` state — single toggle shared across all lightbox opens. Defaults to unmuted. Opening an unmuted grid video forces lightbox to unmuted; opening a muted one inherits existing lightbox state.
 
-`useVideoAudioManager` still exists in `src/hooks/` but is no longer imported or used.
-
 ### Key Hooks
 
 - **`useVideoLoadQueue`** — Loads videos one at a time, prioritizing closest-to-viewport. Supports priority override for lightbox.
