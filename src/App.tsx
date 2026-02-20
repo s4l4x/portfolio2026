@@ -104,12 +104,15 @@ function MediaLightbox({ media, lightboxMuted, onToggleMute, onExitComplete }: {
 
   const { item, sourceRect, sourceElement } = media
   const manifest = getManifestEntry(item.src)
+  const frameManifest = item.frameSrc ? getManifestEntry(item.frameSrc) : null
   const hasAudio = media.videoEl && manifest?.type === 'video' && manifest.hasAudio === true
 
-  // Compute aspect ratio — fall back to source element dimensions
-  const aspectRatio = manifest?.width && manifest?.height
-    ? manifest.width / manifest.height
-    : sourceRect.width / sourceRect.height
+  // Compute aspect ratio — use frame dimensions when framed, fall back to source element
+  const aspectRatio = frameManifest?.width && frameManifest?.height
+    ? frameManifest.width / frameManifest.height
+    : manifest?.width && manifest?.height
+      ? manifest.width / manifest.height
+      : sourceRect.width / sourceRect.height
 
   const targetRect = computeTargetRect(aspectRatio)
 
@@ -282,6 +285,21 @@ function MediaLightbox({ media, lightboxMuted, onToggleMute, onExitComplete }: {
 
   // For images: render content in the animated container
   const renderImageContent = () => {
+    if (item.frameSrc) {
+      return (
+        <div
+          className="media-framed"
+          onClick={(e) => e.stopPropagation()}
+          style={{ width: '100%', height: '100%' }}
+        >
+          <img src={item.frameSrc} alt="" className="media-frame" />
+          <div className="media-screen" style={item.screenInset}>
+            <img src={item.src} alt={item.alt} />
+          </div>
+        </div>
+      )
+    }
+
     if (item.foregroundSrc) {
       return (
         <div
@@ -422,6 +440,23 @@ function MediaDisplay({ item, videoLoadQueue, unmutedVideoId, onToggleGridMute, 
             {isUnmuted ? <SpeakerIcon /> : <SpeakerMutedIcon />}
           </button>
         )}
+      </div>
+    )
+  }
+
+  if (item.frameSrc) {
+    const frameEntry = getManifestEntry(item.frameSrc)
+    const frameAspect = frameEntry ? `${frameEntry.width} / ${frameEntry.height}` : undefined
+    return (
+      <div
+        className="media-item media-framed"
+        onClick={handleTap}
+        style={{ ...(frameAspect ? { aspectRatio: frameAspect } : {}), cursor: onMediaTap ? 'pointer' : undefined }}
+      >
+        <img src={item.frameSrc} alt="" className="media-frame" />
+        <div className="media-screen" style={item.screenInset}>
+          <img src={item.src} alt={item.alt} />
+        </div>
       </div>
     )
   }

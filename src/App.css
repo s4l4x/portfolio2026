@@ -145,6 +145,31 @@
   object-fit: contain;
 }
 
+.media-framed {
+  position: relative;
+  overflow: hidden;
+  height: 280px;
+  border-radius: 6px;
+}
+
+.media-framed .media-frame {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.media-framed .media-screen {
+  position: absolute;
+  overflow: hidden;
+}
+
+.media-framed .media-screen img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  display: block;
+}
+
 /* Video loading progress */
 .video-progress {
   position: absolute;
@@ -329,7 +354,8 @@
   }
 
   .media-item,
-  .media-layered {
+  .media-layered,
+  .media-framed {
     height: 220px;
   }
 

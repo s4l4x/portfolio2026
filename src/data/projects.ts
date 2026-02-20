@@ -18,8 +18,10 @@ import lucyFiferImage from "../assets/lucy/lucyFifer.png";
 import lucyLogoImage from "../assets/lucy/lucyLogo.png";
 import watchFaceSolar45 from "../assets/apple-hi/watch-solar-off-axis.jpg";
 import watchFaceChrono45 from "../assets/apple-hi/watch-chrono-off-axis.jpg";
-import siriIOS5MicFramed from "../assets/apple-hi/siri-iOS5-mic-framed.png";
-import siriIOS5SnippetFramed from "../assets/apple-hi/siri-iOS5-snippet-framed.png";
+import compassCalibration from "../assets/apple-hi/compass-calibration.png";
+import siriIOS5Mic from "../assets/apple-hi/siri-iOS5-mic.png";
+import siriIOS5Snippet from "../assets/apple-hi/siri-iOS5-snippet.png";
+import { iphone6White, iphone4Black } from "./devices";
 
 // Videos
 import gLoveVideoWhiteGlove from "../assets/g-love/g.love-IMG_7225-1080p.mov";
@@ -276,12 +278,19 @@ export const projects: Project[] = [
         alt: "Apple Human Interface",
       },
       {
-        src: siriIOS5MicFramed,
-        alt: "Siri iOS 5 microphone interface",
+        src: compassCalibration,
+        alt: "Compass calibration",
+        ...iphone6White,
       },
       {
-        src: siriIOS5SnippetFramed,
+        src: siriIOS5Mic,
+        alt: "Siri iOS 5 microphone interface",
+        ...iphone4Black,
+      },
+      {
+        src: siriIOS5Snippet,
         alt: "Siri iOS 5 calendar snippet",
+        ...iphone4Black,
       },
     ],
   },

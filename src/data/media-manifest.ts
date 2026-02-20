@@ -91,6 +91,36 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "width": 2048,
     "height": 2048
   },
+  "iphone6-white.png": {
+    "type": "image",
+    "width": 770,
+    "height": 1602
+  },
+  "iphone4.png": {
+    "type": "image",
+    "width": 768,
+    "height": 1490
+  },
+  "wwdc-app-wall-streaks.png": {
+    "type": "image",
+    "width": 3688,
+    "height": 2208
+  },
+  "screensaver-arabesque-12.png": {
+    "type": "image",
+    "width": 2048,
+    "height": 1536
+  },
+  "screensaver-arabesque-11.png": {
+    "type": "image",
+    "width": 2048,
+    "height": 1536
+  },
+  "screensaver-arabesque-04.png": {
+    "type": "image",
+    "width": 2048,
+    "height": 1536
+  },
   "braidJourney.png": {
     "type": "image",
     "lqip": "braidJourney.lqip.webp",
@@ -156,32 +186,6 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "lqip": "Braid-Slides-Augment.lqip.webp",
     "width": 1492,
     "height": 1150
-  },
-  "wwdc-app-wall-streaks.png": {
-    "type": "image",
-    "width": 3688,
-    "height": 2208
-  },
-  "screensaver-arabesque-12.png": {
-    "type": "image",
-    "width": 2048,
-    "height": 1536
-  },
-  "screensaver-arabesque-11.png": {
-    "type": "image",
-    "width": 2048,
-    "height": 1536
-  },
-  "screensaver-arabesque-04.png": {
-    "type": "image",
-    "width": 2048,
-    "height": 1536
-  },
-  "apolloVibes.png": {
-    "type": "image",
-    "lqip": "apolloVibes.lqip.webp",
-    "width": 848,
-    "height": 1842
   },
   "yt-grid.png": {
     "type": "image",
@@ -353,11 +357,6 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "width": 640,
     "height": 1136
   },
-  "iphone6.png": {
-    "type": "image",
-    "width": 770,
-    "height": 1602
-  },
   "dictation-syrah.png": {
     "type": "image",
     "width": 2304,
@@ -377,6 +376,12 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "type": "image",
     "width": 640,
     "height": 1136
+  },
+  "apolloVibes.png": {
+    "type": "image",
+    "lqip": "apolloVibes.lqip.webp",
+    "width": 848,
+    "height": 1842
   },
   "periscopeLive360_sizzle.mp4": {
     "type": "video",
