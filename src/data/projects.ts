@@ -16,8 +16,7 @@ import dionysianFG from "../assets/dionysian/dionysianJournalsFG.png";
 import ixomoxiImage from "../assets/ixomoxi/ixomoxiMissy.png";
 import lucyFiferImage from "../assets/lucy/lucyFifer.png";
 import lucyLogoImage from "../assets/lucy/lucyLogo.png";
-import watchFaceSolar45 from "../assets/apple-hi/watch-solar-off-axis.jpg";
-import watchFaceChrono45 from "../assets/apple-hi/watch-chrono-off-axis.jpg";
+import watchFaceSolar45 from "../assets/apple-hi/watch-solar-leather-alpha.png";
 import compassCalibration from "../assets/apple-hi/compass-calibration.png";
 import siriIOS5Mic from "../assets/apple-hi/siri-iOS5-mic.png";
 import siriIOS5Snippet from "../assets/apple-hi/siri-iOS5-snippet.png";
@@ -228,10 +227,6 @@ export const projects: Project[] = [
     media: [
       {
         src: watchFaceSolar45,
-        alt: "Apple Human Interface",
-      },
-      {
-        src: watchFaceChrono45,
         alt: "Apple Human Interface",
       },
       {

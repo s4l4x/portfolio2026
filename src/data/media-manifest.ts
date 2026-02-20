@@ -174,6 +174,12 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "width": 1492,
     "height": 1150
   },
+  "apolloVibes.png": {
+    "type": "image",
+    "lqip": "data:image/webp;base64,UklGRqoAAABXRUJQVlA4IJ4AAADwBQCdASoUACsAPzmMu1SvKaYjKqwB4CcJYwC2Fq1Qv4nGCiRxz7kmiD7zCJxT/LLe8kVVO6qhaAD+v3PkwzCqUux75/Wejc6wKkyBkNPONigUSFpGqEgeqfOQCgQfEnCZIA729MoC2Qxh/f4q6pg//iV+MjjtEMQypUex5U7CNk5Z9flKzKMfCQaE2n59/yhS8LC406u88RydTgAAAA==",
+    "width": 848,
+    "height": 1842
+  },
   "wwdc-app-wall-streaks.png": {
     "type": "image",
     "lqip": "data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAAAwAwCdASoUAAwAPzmGu1OvKSYisAgB4CcJZwAAW+sgzLeAAP7o2NlstuRmHuAEFQYyz7CT80VvgAAA",
@@ -197,12 +203,6 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "lqip": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAABwBACdASoUAA8APzmIulQvKSWjMAgB4CcJbACdOUE6UAio4alOI6utfEEDAAD+vzQbJRxgwu6n5yxS3JZWMtacFHxCz36C1cz0MPSve3swAA==",
     "width": 2048,
     "height": 1536
-  },
-  "apolloVibes.png": {
-    "type": "image",
-    "lqip": "data:image/webp;base64,UklGRqoAAABXRUJQVlA4IJ4AAADwBQCdASoUACsAPzmMu1SvKaYjKqwB4CcJYwC2Fq1Qv4nGCiRxz7kmiD7zCJxT/LLe8kVVO6qhaAD+v3PkwzCqUux75/Wejc6wKkyBkNPONigUSFpGqEgeqfOQCgQfEnCZIA729MoC2Qxh/f4q6pg//iV+MjjtEMQypUex5U7CNk5Z9flKzKMfCQaE2n59/yhS8LC406u88RydTgAAAA==",
-    "width": 848,
-    "height": 1842
   },
   "yt-grid.png": {
     "type": "image",
@@ -269,6 +269,18 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "lqip": "data:image/webp;base64,UklGRqQAAABXRUJQVlA4IJgAAAAwBQCdASoUABcAPzmSu1gvKiWjqAqp4CcJZQDKAA8zS7W8Wh3UM5w+MSpwZuNlSdA/BAD+53XT+LwItD58dADUEMc1uXMarhsNhTAboDXT1zMdHcPC4aUbPFPN2ORCmEkLdmtj7VJt+FDACgjoAen86OloeARANlasdKs6NRfruGEJ6SXUl9OjS7PCcQYSkRKTXGLKeAAAAA==",
     "width": 572,
     "height": 644
+  },
+  "watch-solar-leather.png": {
+    "type": "image",
+    "lqip": "data:image/webp;base64,UklGRo4AAABXRUJQVlA4IIIAAADwBACdASoUACEAPy16uFOup6WitVgMAdAliWcAADMzQoRS3fkl9dfTIjTjXunogwAA/ucuQsVhn4sMFIAOMs59JPPgDzRPJdE0Zo99QAmsKhtxe2aPjUUaqxkU3tQULIOnimSTUx3q6B+hZygGkEToUmtFskxd46lsgmMNzU0AogAA",
+    "width": 1028,
+    "height": 1696
+  },
+  "watch-solar-leather-alpha.png": {
+    "type": "image",
+    "lqip": "data:image/webp;base64,UklGRoABAABXRUJQVlA4WAoAAAAQAAAAEwAAIAAAQUxQSMwAAAABgKpt//nn/Ruz/Udcs52W/r82G5nNZ2A0s/k4lrZkb9Hmn5/P53cIETEB8C9x+SuKUgLadOkmby1U/AP1kkzlu5llVDenj9rj7OsDaGfd7GW937pbuAGg1C2uANplXUCHbARokf0WoV7mdqFGhXJUyRaAStmwKhNAlWwbqFWlXZVO2S7QK1sBumRDQI2sHYi8lNzFA0g75V3lwD/1nvOchsAznAWQdZw2KuOfUUAlvVJfTsp88Pr6+vry8vJ6GEIhzmaz2VJSbLZ4+ANWUDggjgAAANAEAJ0BKhQAIQA/OZK8WC8qJaOquAoB4CcJZQAAGDLbQUA65lBNpxLp+FkcEZHgAPxdZxK09bHvs4YseKe9+DdMe9ja1KXHG2QsW1r8Jrc9pP9aUXWcWHkPh6TRq1PDYxHb3naCHBcUTBEIJ2Kui+2M/5+8rpKbbdlBGwr0rl24grWbzotg9XDqLXYAAAA=",
+    "width": 1028,
+    "height": 1696
   },
   "watch-mask-steel.png": {
     "type": "image",
@@ -469,14 +481,6 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "height": 1080,
     "duration": 14.666667
   },
-  "ixomoxi_esc_audio-HD.mov": {
-    "type": "video",
-    "poster": "ixomoxi_esc_audio-HD.poster.jpg",
-    "width": 800,
-    "height": 600,
-    "duration": 61.2612,
-    "hasAudio": true
-  },
   "g.love-IMG_7636-1080p.mov": {
     "type": "video",
     "poster": "g.love-IMG_7636-1080p.poster.jpg",
@@ -491,6 +495,14 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "width": 608,
     "height": 1080,
     "duration": 7.766667,
+    "hasAudio": true
+  },
+  "ixomoxi_esc_audio-HD.mov": {
+    "type": "video",
+    "poster": "ixomoxi_esc_audio-HD.poster.jpg",
+    "width": 800,
+    "height": 600,
+    "duration": 61.2612,
     "hasAudio": true
   }
 };
