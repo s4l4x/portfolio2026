@@ -198,6 +198,12 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "width": 2048,
     "height": 1536
   },
+  "apolloVibes.png": {
+    "type": "image",
+    "lqip": "data:image/webp;base64,UklGRqoAAABXRUJQVlA4IJ4AAADwBQCdASoUACsAPzmMu1SvKaYjKqwB4CcJYwC2Fq1Qv4nGCiRxz7kmiD7zCJxT/LLe8kVVO6qhaAD+v3PkwzCqUux75/Wejc6wKkyBkNPONigUSFpGqEgeqfOQCgQfEnCZIA729MoC2Qxh/f4q6pg//iV+MjjtEMQypUex5U7CNk5Z9flKzKMfCQaE2n59/yhS8LC406u88RydTgAAAA==",
+    "width": 848,
+    "height": 1842
+  },
   "yt-grid.png": {
     "type": "image",
     "lqip": "data:image/webp;base64,UklGRswAAABXRUJQVlA4IMAAAAAwBQCdASoUABsAPzmQvlevKaYjqAqp4CcJZQDMXAgApweDTphWp7cvtbDsMDlxHSxoAAD91f1MWsJhKlNA+kxVXUi7E3MkgZG8/GjFNqn3CUut/4TawphHJ4MQ/2vn4I4afahKzW3QR6yL2HuTyd+Acd5oetely5lw51gvS1XAXm9P3Xn+vSM1xQ7PDKLeANnElfUYlHrAoCd9pmsGTQD5qxu0S/SspaOTazfZMt9wY77t5m2G2fnl/H0xe/9oAAA=",
@@ -425,12 +431,6 @@ export const mediaManifest: Record<string, MediaManifestEntry> = {
     "lqip": "data:image/webp;base64,UklGRkQAAABXRUJQVlA4IDgAAABQAwCdASoUACQAPzmQvFYvKiYjqrgMAeAnCWkAACgkx+3sAAD+71a9AoNh0BNtrBATXT/3h4AAAA==",
     "width": 640,
     "height": 1136
-  },
-  "apolloVibes.png": {
-    "type": "image",
-    "lqip": "data:image/webp;base64,UklGRqoAAABXRUJQVlA4IJ4AAADwBQCdASoUACsAPzmMu1SvKaYjKqwB4CcJYwC2Fq1Qv4nGCiRxz7kmiD7zCJxT/LLe8kVVO6qhaAD+v3PkwzCqUux75/Wejc6wKkyBkNPONigUSFpGqEgeqfOQCgQfEnCZIA729MoC2Qxh/f4q6pg//iV+MjjtEMQypUex5U7CNk5Z9flKzKMfCQaE2n59/yhS8LC406u88RydTgAAAA==",
-    "width": 848,
-    "height": 1842
   },
   "periscopeLive360_sizzle.mp4": {
     "type": "video",

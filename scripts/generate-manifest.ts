@@ -90,22 +90,22 @@ async function generateManifest() {
 
   // Process images
   const images = await glob(`${ASSETS_DIR}/**/*.{png,jpg,jpeg,webp}`, {
-    ignore: ['**/*.lqip.webp', '**/*.poster.jpg'],
+    ignore: ['**/*.poster.jpg'],
   });
 
   for (const imgPath of images) {
     const basename = path.basename(imgPath);
-    const nameWithoutExt = basename.replace(/\.\w+$/, '');
-    const lqipFile = `${nameWithoutExt}.lqip.webp`;
-    const lqipPath = path.join(path.dirname(imgPath), lqipFile);
 
     const dimensions = getImageDimensions(imgPath);
     let lqipDataUri: string | undefined;
     try {
-      const lqipData = await fs.readFile(lqipPath);
-      lqipDataUri = `data:image/webp;base64,${lqipData.toString('base64')}`;
+      const lqipBuffer = execSync(
+        `ffmpeg -v error -i "${imgPath}" -vf "scale=20:-1" -quality 20 -f webp pipe:1`,
+        { encoding: 'buffer' }
+      );
+      lqipDataUri = `data:image/webp;base64,${lqipBuffer.toString('base64')}`;
     } catch {
-      // LQIP not yet generated
+      // ffmpeg failed for this image
     }
 
     manifest[basename] = {

@@ -10,10 +10,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
-    "generate-lqip": "bash scripts/generate-lqip.sh",
     "generate-posters": "bash scripts/generate-posters.sh",
     "generate-manifest": "tsx scripts/generate-manifest.ts",
-    "prebuild": "npm run generate-lqip && npm run generate-posters && npm run generate-manifest"
+    "prebuild": "npm run generate-posters && npm run generate-manifest"
   },
   "dependencies": {
     "react": "^19.2.0",
