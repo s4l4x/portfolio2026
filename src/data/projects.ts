@@ -21,6 +21,10 @@ import watchFaceChrono45 from "../assets/apple-hi/watch-chrono-off-axis.jpg";
 import compassCalibration from "../assets/apple-hi/compass-calibration.png";
 import siriIOS5Mic from "../assets/apple-hi/siri-iOS5-mic.png";
 import siriIOS5Snippet from "../assets/apple-hi/siri-iOS5-snippet.png";
+import screensaverArabesque04 from "../assets/apple-qc/screensaver-arabesque-04.png";
+import screensaverArabesque11 from "../assets/apple-qc/screensaver-arabesque-11.png";
+import screensaverArabesque12 from "../assets/apple-qc/screensaver-arabesque-12.png";
+import wwdcAppWallStreaks from "../assets/apple-qc/wwdc-app-wall-streaks.png";
 import { iphone6White, iphone4Black } from "./devices";
 
 // Videos
@@ -291,6 +295,30 @@ export const projects: Project[] = [
         src: siriIOS5Snippet,
         alt: "Siri iOS 5 calendar snippet",
         ...iphone4Black,
+      },
+    ],
+  },
+  {
+    title: "Apple QC",
+    company: "Apple",
+    role: "Designer",
+    description: "",
+    media: [
+      {
+        src: wwdcAppWallStreaks,
+        alt: "WWDC app wall streaks",
+      },
+      {
+        src: screensaverArabesque04,
+        alt: "Screensaver arabesque",
+      },
+      {
+        src: screensaverArabesque11,
+        alt: "Screensaver arabesque",
+      },
+      {
+        src: screensaverArabesque12,
+        alt: "Screensaver arabesque",
       },
     ],
   },

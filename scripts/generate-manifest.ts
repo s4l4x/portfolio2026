@@ -42,33 +42,18 @@ function videoHasAudio(videoPath: string): boolean {
   }
 }
 
-// Get image dimensions using sips (macOS) or identify (ImageMagick)
 function getImageDimensions(imgPath: string): { width: number; height: number } {
   try {
-    // Try sips first (macOS built-in)
     const result = execSync(
-      `sips -g pixelWidth -g pixelHeight "${imgPath}" 2>/dev/null | grep pixel`,
+      `ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "${imgPath}"`,
       { encoding: 'utf-8' }
     );
-    const widthMatch = result.match(/pixelWidth:\s*(\d+)/);
-    const heightMatch = result.match(/pixelHeight:\s*(\d+)/);
-    if (widthMatch && heightMatch) {
-      return { width: parseInt(widthMatch[1]), height: parseInt(heightMatch[1]) };
+    const [width, height] = result.trim().split('x').map(Number);
+    if (width && height) {
+      return { width, height };
     }
   } catch {
-    // Try ImageMagick identify as fallback
-    try {
-      const result = execSync(
-        `identify -format "%w %h" "${imgPath}" 2>/dev/null`,
-        { encoding: 'utf-8' }
-      );
-      const [width, height] = result.trim().split(' ').map(Number);
-      if (width && height) {
-        return { width, height };
-      }
-    } catch {
-      // Ignore
-    }
+    // ffprobe failed
   }
   return { width: 0, height: 0 };
 }
