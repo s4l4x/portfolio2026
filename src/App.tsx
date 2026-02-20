@@ -392,10 +392,11 @@ function MediaDisplay({ item, videoLoadQueue, unmutedVideoId, onToggleGridMute, 
 
   const isUnmuted = hasAudio && unmutedVideoId === item.src
 
-  // Sync muted state from parent
+  // Sync muted state from parent (skip if in iOS native fullscreen)
   useEffect(() => {
     const el = videoRef.current
     if (!el || !hasAudio) return
+    if (el.dataset.iosFullscreen === '1') return
     const shouldMute = !isUnmuted
     if (el.muted !== shouldMute) el.muted = shouldMute
     el.dataset.gridMuted = shouldMute ? '1' : '0'
@@ -563,9 +564,12 @@ function App() {
       // Native iOS fullscreen with landscape support
       const el = videoEl as HTMLVideoElement & { webkitEnterFullscreen?: () => void }
       if (el.webkitEnterFullscreen) {
+        setUnmutedVideoId(null)
+        el.dataset.iosFullscreen = '1'
         el.muted = false
         el.webkitEnterFullscreen()
         const onEnd = () => {
+          delete el.dataset.iosFullscreen
           el.muted = true
           el.removeEventListener('webkitendfullscreen', onEnd)
           // iOS fires a deferred pause after exiting fullscreen (especially
@@ -600,6 +604,9 @@ function App() {
     if (isVideo && videoEl && !videoEl.muted) {
       setLightboxMuted(false)
     }
+
+    // Mute all grid videos when lightbox opens
+    setUnmutedVideoId(null)
 
     // Desktop (or image on any device): open lightbox
     const media = { item, isVideo, sourceRect, sourceElement, videoEl: isVideo ? (videoEl ?? undefined) : undefined }
