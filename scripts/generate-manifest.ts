@@ -100,21 +100,21 @@ async function generateManifest() {
     const lqipPath = path.join(path.dirname(imgPath), lqipFile);
 
     const dimensions = getImageDimensions(imgPath);
-    let hasLqip = false;
+    let lqipDataUri: string | undefined;
     try {
-      await fs.access(lqipPath);
-      hasLqip = true;
+      const lqipData = await fs.readFile(lqipPath);
+      lqipDataUri = `data:image/webp;base64,${lqipData.toString('base64')}`;
     } catch {
       // LQIP not yet generated
     }
 
     manifest[basename] = {
       type: 'image',
-      ...(hasLqip && { lqip: lqipFile }),
+      ...(lqipDataUri && { lqip: lqipDataUri }),
       width: dimensions.width,
       height: dimensions.height,
     };
-    console.log(`${hasLqip ? '✓' : '⚠'} ${basename}${hasLqip ? '' : ' (no LQIP)'}`);
+    console.log(`${lqipDataUri ? '✓' : '⚠'} ${basename}${lqipDataUri ? '' : ' (no LQIP)'}`);
   }
 
   // Process videos

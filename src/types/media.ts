@@ -10,7 +10,7 @@ export interface MediaItem {
   type?: "video";
   alt: string;
   posterSrc?: string;
-  lqipSrc?: string;
+
   foregroundSrc?: string;
   frameSrc?: string;
   screenInset?: ScreenInset;
