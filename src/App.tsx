@@ -127,10 +127,20 @@ function MediaLightbox({ media, lightboxMuted, onToggleMute, onExitComplete }: {
   // The element we animate: the actual grid video, or the container for images
   const getAnimatedEl = () => media.videoEl || containerRef.current
 
-  // Lock body scroll
+  // Lock body scroll (iOS-compatible: position:fixed preserves visual position)
   useEffect(() => {
+    const scrollY = window.scrollY
     document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = '' }
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.width = '100%'
+    return () => {
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+      window.scrollTo(0, scrollY)
+    }
   }, [])
 
   // Enter animation: double-rAF to trigger CSS transition
