@@ -129,8 +129,6 @@
   overflow: hidden;
   height: var(--media-row-height);
   border-radius: 6px;
-  /* iOS Safari fix: aspect-ratio + width:auto doesn't compute width on flex div items */
-  width: calc(var(--media-row-height) * var(--ar, 1));
 }
 
 .media-layered .media-bg {
@@ -152,8 +150,6 @@
   overflow: hidden;
   height: var(--media-row-height);
   border-radius: 6px;
-  /* iOS Safari fix: aspect-ratio + width:auto doesn't compute width on flex div items */
-  width: calc(var(--media-row-height) * var(--ar, 1));
 }
 
 .media-framed .media-frame {
@@ -359,6 +355,12 @@
 
   :root {
     --media-row-height: 220px;
+  }
+
+  /* iOS Safari fix: aspect-ratio + width:auto doesn't compute width on flex div items */
+  .media-layered,
+  .media-framed {
+    width: calc(var(--media-row-height) * var(--ar, 1));
   }
 
 }
