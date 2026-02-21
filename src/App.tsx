@@ -134,11 +134,15 @@ function MediaLightbox({ media, lightboxMuted, onToggleMute, onExitComplete }: {
     document.body.style.position = 'fixed'
     document.body.style.top = `-${scrollY}px`
     document.body.style.width = '100%'
+    // iOS Safari can show a sliver of the :root background at screen edges when
+    // body is position:fixed. Setting it to black makes any such gap invisible.
+    document.documentElement.style.backgroundColor = '#000'
     return () => {
       document.body.style.overflow = ''
       document.body.style.position = ''
       document.body.style.top = ''
       document.body.style.width = ''
+      document.documentElement.style.backgroundColor = ''
       window.scrollTo(0, scrollY)
     }
   }, [])
