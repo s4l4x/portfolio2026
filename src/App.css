@@ -129,6 +129,8 @@
   overflow: hidden;
   height: 280px;
   border-radius: 6px;
+  /* iOS Safari fix: aspect-ratio + width:auto doesn't compute width on flex div items */
+  width: calc(280px * var(--ar, 1));
 }
 
 .media-layered .media-bg {
@@ -150,6 +152,8 @@
   overflow: hidden;
   height: 280px;
   border-radius: 6px;
+  /* iOS Safari fix: aspect-ratio + width:auto doesn't compute width on flex div items */
+  width: calc(280px * var(--ar, 1));
 }
 
 .media-framed .media-frame {
@@ -357,6 +361,11 @@
   .media-layered,
   .media-framed {
     height: 220px;
+  }
+
+  .media-layered,
+  .media-framed {
+    width: calc(220px * var(--ar, 1));
   }
 
   .video-wrapper {
