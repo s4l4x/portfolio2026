@@ -221,6 +221,7 @@
 .lightbox-backdrop {
   position: fixed;
   inset: 0;
+  top: -1px; /* iOS Safari leaves a 1px gap at top; extend to cover it */
   z-index: 1000;
   background: rgba(0, 0, 0, 0.85);
   cursor: pointer;
