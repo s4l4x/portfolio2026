@@ -127,10 +127,24 @@ function MediaLightbox({ media, lightboxMuted, onToggleMute, onExitComplete }: {
   // The element we animate: the actual grid video, or the container for images
   const getAnimatedEl = () => media.videoEl || containerRef.current
 
-  // Lock body scroll
+  // Lock body scroll (iOS-compatible: position:fixed preserves visual position)
   useEffect(() => {
+    const scrollY = window.scrollY
     document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = '' }
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.width = '100%'
+    // iOS Safari can show a sliver of the :root background at screen edges when
+    // body is position:fixed. Setting it to black makes any such gap invisible.
+    document.documentElement.style.backgroundColor = '#000'
+    return () => {
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+      document.documentElement.style.backgroundColor = ''
+      window.scrollTo(0, scrollY)
+    }
   }, [])
 
   // Enter animation: double-rAF to trigger CSS transition
