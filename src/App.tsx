@@ -97,7 +97,6 @@ type LightboxPhase = 'entering' | 'open' | 'exiting'
 function MediaLightbox({ media, lightboxMuted, onToggleMute, onExitComplete }: { media: ExpandedMedia; lightboxMuted: boolean; onToggleMute: () => void; onExitComplete: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [phase, setPhase] = useState<LightboxPhase>('entering')
-  const [backdropVisible, setBackdropVisible] = useState(false)
   const closingRef = useRef(false)
   const [controlsVisible, setControlsVisible] = useState(true)
   const controlsTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
@@ -127,10 +126,17 @@ function MediaLightbox({ media, lightboxMuted, onToggleMute, onExitComplete }: {
   // The element we animate: the actual grid video, or the container for images
   const getAnimatedEl = () => media.videoEl || containerRef.current
 
-  // Lock body scroll
+  // Lock body scroll: overflow:hidden for desktop/keyboard scroll,
+  // touchmove preventDefault for iOS (position:fixed approach avoided due to
+  // iOS 26 Safari using fixed elements' bg color for tab bar tinting)
   useEffect(() => {
     document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = '' }
+    const preventTouch = (e: TouchEvent) => e.preventDefault()
+    document.addEventListener('touchmove', preventTouch, { passive: false })
+    return () => {
+      document.body.style.overflow = ''
+      document.removeEventListener('touchmove', preventTouch)
+    }
   }, [])
 
   // Enter animation: double-rAF to trigger CSS transition
@@ -155,7 +161,6 @@ function MediaLightbox({ media, lightboxMuted, onToggleMute, onExitComplete }: {
     let raf2: number
     const raf1 = requestAnimationFrame(() => {
       raf2 = requestAnimationFrame(() => {
-        setBackdropVisible(true)
         el.classList.add('lightbox-clone--animate')
         el.style.transform = 'none'
       })
@@ -272,7 +277,7 @@ function MediaLightbox({ media, lightboxMuted, onToggleMute, onExitComplete }: {
   }, [onToggleMute, resetControlsTimer])
 
   const snapshotSrc = media.snapshotSrc || item.posterSrc || item.src
-  const backdropClass = `lightbox-backdrop${phase === 'exiting' ? ' lightbox-backdrop--exit' : backdropVisible ? ' lightbox-backdrop--visible' : ''}`
+  const backdropClass = `lightbox-backdrop${phase === 'exiting' ? ' lightbox-backdrop--exit' : ' lightbox-backdrop--visible'}`
 
   const containerStyle: React.CSSProperties = {
     top: targetRect.top,
