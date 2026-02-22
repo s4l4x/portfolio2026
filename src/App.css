@@ -229,12 +229,10 @@
 
 .lightbox-backdrop--visible {
   opacity: 1;
-  transition: opacity 350ms ease-out;
 }
 
 .lightbox-backdrop--exit {
   opacity: 0;
-  transition: opacity 300ms ease-in;
 }
 
 .lightbox-clone {
