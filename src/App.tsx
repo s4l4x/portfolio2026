@@ -127,23 +127,16 @@ function MediaLightbox({ media, lightboxMuted, onToggleMute, onExitComplete }: {
   // The element we animate: the actual grid video, or the container for images
   const getAnimatedEl = () => media.videoEl || containerRef.current
 
-  // Lock body scroll (iOS-compatible: position:fixed preserves visual position)
+  // Lock body scroll: overflow:hidden for desktop/keyboard scroll,
+  // touchmove preventDefault for iOS (position:fixed approach avoided due to
+  // iOS 26 Safari using fixed elements' bg color for tab bar tinting)
   useEffect(() => {
-    const scrollY = window.scrollY
     document.body.style.overflow = 'hidden'
-    document.body.style.position = 'fixed'
-    document.body.style.top = `-${scrollY}px`
-    document.body.style.width = '100%'
-    // iOS Safari can show a sliver of the :root background at screen edges when
-    // body is position:fixed. Setting it to black makes any such gap invisible.
-    document.documentElement.style.backgroundColor = '#000'
+    const preventTouch = (e: TouchEvent) => e.preventDefault()
+    document.addEventListener('touchmove', preventTouch, { passive: false })
     return () => {
       document.body.style.overflow = ''
-      document.body.style.position = ''
-      document.body.style.top = ''
-      document.body.style.width = ''
-      document.documentElement.style.backgroundColor = ''
-      window.scrollTo(0, scrollY)
+      document.removeEventListener('touchmove', preventTouch)
     }
   }, [])
 
