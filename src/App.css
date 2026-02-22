@@ -338,11 +338,11 @@
 @keyframes media-enter {
   from {
     opacity: 0;
-    transform: translateX(24px);
+    transform: translateY(-24px);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
   }
 }
 
