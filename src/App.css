@@ -357,10 +357,4 @@
     --media-row-height: 220px;
   }
 
-  /* iOS Safari fix: aspect-ratio + width:auto doesn't compute width on flex div items */
-  .media-layered,
-  .media-framed {
-    width: calc(var(--media-row-height) * var(--ar, 1));
-  }
-
 }
