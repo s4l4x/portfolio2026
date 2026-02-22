@@ -118,7 +118,7 @@
 .media-item {
   border-radius: 6px;
   object-fit: cover;
-  height: 280px;
+  height: var(--media-row-height);
   width: auto;
   flex-shrink: 0;
   background: rgba(0,0,0,0.04);
@@ -127,7 +127,7 @@
 .media-layered {
   position: relative;
   overflow: hidden;
-  height: 280px;
+  height: var(--media-row-height);
   border-radius: 6px;
 }
 
@@ -148,7 +148,7 @@
 .media-framed {
   position: relative;
   overflow: hidden;
-  height: 280px;
+  height: var(--media-row-height);
   border-radius: 6px;
 }
 
@@ -191,7 +191,7 @@
 /* Video audio controls */
 .video-wrapper {
   position: relative;
-  height: 280px;
+  height: var(--media-row-height);
   flex-shrink: 0;
 }
 
@@ -353,14 +353,8 @@
     width: calc(1.25rem - 0.6rem);
   }
 
-  .media-item,
-  .media-layered,
-  .media-framed {
-    height: 220px;
-  }
-
-  .video-wrapper {
-    height: 220px;
+  :root {
+    --media-row-height: 220px;
   }
 
 }

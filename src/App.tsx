@@ -448,11 +448,12 @@ function MediaDisplay({ item, videoLoadQueue, unmutedVideoId, onToggleGridMute, 
   if (item.frameSrc) {
     const frameEntry = getManifestEntry(item.frameSrc)
     const frameAspect = frameEntry ? `${frameEntry.width} / ${frameEntry.height}` : undefined
+    const frameAr = frameEntry ? frameEntry.width / frameEntry.height : undefined
     return (
       <div
         className="media-item media-framed"
         onClick={handleTap}
-        style={{ ...(frameAspect ? { aspectRatio: frameAspect } : {}), cursor: onMediaTap ? 'pointer' : undefined }}
+        style={{ ...(frameAspect ? { aspectRatio: frameAspect } : {}), ...(frameAr !== undefined ? { '--ar': String(frameAr), width: `calc(var(--media-row-height) * ${frameAr})` } as React.CSSProperties : {}), cursor: onMediaTap ? 'pointer' : undefined }}
       >
         <img src={item.frameSrc} alt="" className="media-frame" />
         <div className="media-screen" style={item.screenInset}>
@@ -467,7 +468,7 @@ function MediaDisplay({ item, videoLoadQueue, unmutedVideoId, onToggleGridMute, 
       <div
         className="media-item media-layered"
         onClick={handleTap}
-        style={{ ...(aspectRatio ? { aspectRatio } : {}), cursor: onMediaTap ? 'pointer' : undefined }}
+        style={{ ...(aspectRatio ? { aspectRatio, '--ar': String(aspectRatio), width: `calc(var(--media-row-height) * ${aspectRatio})` } as React.CSSProperties : {}), cursor: onMediaTap ? 'pointer' : undefined }}
       >
         {item.shader ? (
           <ShaderCanvas imageSrc={item.src} className="media-bg" />
